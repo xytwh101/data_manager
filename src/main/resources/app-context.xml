@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+          destroy-method="close"
+          p:driverClass="com.mysql.jdbc.Driver"
+          p:jdbcUrl="jdbc:mysql://localhost:3306/data_manager"
+          p:user="root"
+          p:password="6229899"
+          p:maxPoolSize="40"
+          p:minPoolSize="1"
+          p:initialPoolSize="1"
+          p:maxIdleTime="20"/>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="namingStrategy">
+            <bean class="org.hibernate.cfg.ImprovedNamingStrategy"/>
+        </property>
+        <property name="mappingResources">
+            <list>
+                <value>hbms/user.hbm.xml</value>
+                <!--<value>hbms/bucketInstAuthority.hbm.xml</value>-->
+                <!--<value>hbms/dataInstAuthority.hbm.xml</value>-->
+                <value>hbms/bucketInst.hbm.xml</value>
+                <value>hbms/dataInst.hbm.xml</value>
+            </list>
+        </property>
+        <!-- 定义Hibernate的SessionFactory的属性 -->
+        <property name="hibernateProperties">
+            <!-- 指定数据库方言、是否自动建表 是否生成SQL语句等 	-->
+            <value>
+                hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect
+                hibernate.hbm2ddl.auto=update
+                hibernate.show_sql=true
+                hibernate.format_sql=true
+                hibernate.cache.use_second_level_cache=false
+                <!--#设置二级缓存的提供者-->
+                hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider
+            </value>
+        </property>
+    </bean>
+
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean name="daoInst" class="com.hfut.buaa.data.manager.repository.DaoInst"/>
+    <bean name="userDao" class="com.hfut.buaa.data.manager.repository.impl.UserDaoImpl"/>
+    <bean name="bucketInstDao" class="com.hfut.buaa.data.manager.repository.impl.BucketInstDaoImpl"/>
+    <bean name="dataInstDao" class="com.hfut.buaa.data.manager.repository.impl.DataInstDaoImpl"/>
+    <!--<bean name="authorityDao" class="com.hfut.buaa.data.manager.repository.impl.AuthorityDaoImpl"/>-->
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>
