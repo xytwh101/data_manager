@@ -24,6 +24,13 @@ import java.util.Set;
         "classpath:app-context.xml"})
 public class UserTest extends TestCase {
     private RestTemplate restTemplate = new RestTemplate();
+    private final long TEST_USER_ID = 123456;
+    private final String TEST_PASSWORD = "123";
+
+    @Test
+    public void createUserTest() {
+
+    }
 
     @Test
     public void loginTest() {
@@ -34,6 +41,14 @@ public class UserTest extends TestCase {
         assertEquals(user.getUserId(), userId);
         assertEquals(user.getPassword(), password);
         assertEquals(user.getUserName(), "twh");
+    }
+
+    @Test
+    public void deleteUserTest() {
+        long userId = 333;
+        String password = "123";
+        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/password/{password}";
+        restTemplate.put(uri, null, userId, password);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.hfut.buaa.data.manager.controller;
 
+import com.hfut.buaa.data.manager.exception.BucketInstNotFoundException;
 import com.hfut.buaa.data.manager.exception.CreateBucketValidationException;
 import com.hfut.buaa.data.manager.exception.UserNotFoundException;
 import com.hfut.buaa.data.manager.model.BucketInst;
@@ -61,6 +62,12 @@ public class UserController {
                 .append("/").append(userId).toString());
     }
 
+    @RequestMapping(value = "/Users/{userId}/password/{password}", method = RequestMethod.PUT)
+    public void deleteUser(@PathVariable long userId, @PathVariable String password,
+                           HttpServletRequest request, HttpServletResponse response) {
+        userDao.deleteUser(userId, password);
+    }
+
     /**
      * 返回用户自己创建的bucket以及有权限读取的bucket
      *
@@ -96,15 +103,28 @@ public class UserController {
     }
 
     /**
+     * 没有找到bucketInst的异常处理
+     *
+     * @param ex
+     * @param request
+     * @param response
+     */
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(BucketInstNotFoundException.class)
+    public void handleBucketInstNotFound(BucketInstNotFoundException ex,
+                                         HttpServletRequest request, HttpServletResponse response) {
+        response.setHeader("Message", ex.getMessage());
+    }
+
+    /**
      * 处理添加Bucket，userId、bucketId等参数的验证异常
      *
      * @param ex
      */
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     @ExceptionHandler(CreateBucketValidationException.class)
-    public void handCreateBucketValidation(CreateBucketValidationException ex,
-                                           HttpServletRequest request, HttpServletResponse response) {
-
+    public void handleCreateBucketValidation(CreateBucketValidationException ex,
+                                             HttpServletRequest request, HttpServletResponse response) {
         response.setHeader("Message", ex.getMessage());
     }
 

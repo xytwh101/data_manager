@@ -1,15 +1,19 @@
 package com.hfut.buaa.data.manager.repository.impl;
 
+import com.hfut.buaa.data.manager.exception.BucketInstNotFoundException;
 import com.hfut.buaa.data.manager.exception.CreateBucketValidationException;
 import com.hfut.buaa.data.manager.exception.UserNotFoundException;
 import com.hfut.buaa.data.manager.model.BucketInst;
 import com.hfut.buaa.data.manager.model.DataInst;
 import com.hfut.buaa.data.manager.model.User;
+import com.hfut.buaa.data.manager.repository.AuthorityDao;
 import com.hfut.buaa.data.manager.repository.BucketInstDao;
 import com.hfut.buaa.data.manager.repository.DaoInst;
 import com.hfut.buaa.data.manager.repository.UserDao;
+import com.hfut.buaa.data.manager.utils.AuthorityType;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -25,6 +29,8 @@ public class UserDaoImpl extends DaoInst implements UserDao {
 
     @Autowired(required = true)
     private BucketInstDao bucketInstDao;
+    @Autowired(required = true)
+    private AuthorityDao authorityDao;
 
     @Override
     public User getUserByPassword(long userId, String password) {
@@ -52,12 +58,21 @@ public class UserDaoImpl extends DaoInst implements UserDao {
     }
 
     @Override
-    public void deleteUser(long userId) {
-
+    public void deleteUser(long userId, String password) {
+        Session session = openSession();
+        User user = getUserByPassword(userId, password);
+        if (userId == user.getUserId() && password.equals(user.getPassword())) {
+            Transaction ts = session.beginTransaction();
+            session.delete(user);
+            ts.commit();
+            session.close();
+        } else {
+            throw new UserNotFoundException(String.valueOf(userId));
+        }
     }
 
     /**
-     * 通过userId，连接User、BucketInst、BucketInstAuthority，得到所有有读取权限的BucketInst
+     * 通过userId，得到所有有读取权限的BucketInst
      *
      * @param userId
      * @return
@@ -84,23 +99,35 @@ public class UserDaoImpl extends DaoInst implements UserDao {
 
     }
 
+    /**
+     * 添加bucket
+     *
+     * @param userId
+     * @param bucketInst
+     */
     @Override
     public void createBucket(long userId, BucketInst bucketInst) {
         Session session = openSession();
+        Transaction ts = session.beginTransaction();
         long bucketId = bucketInst.getBucketId();
         if (bucketInst.getUserId() > 0) {
             if (bucketId > 0) {
-                // TODO 验证bucketId 是否存在
                 if (isExists(bucketId)) {
                     throw new CreateBucketValidationException(
                             "this bucketId " + bucketId + " is exist");
                 } else {
+                    // 储存对象
                     session.save(bucketInst);
-                    Set<DataInst> set = bucketInst.getDataInsts();
+                    ts.commit();
                     session.close();
+                    // 权限表添加
+                    authorityDao.saveBucketInstAuthority(
+                            bucketInst, AuthorityType.WRITE.getTypeId());
+                    Set<DataInst> set = bucketInst.getDataInsts();
                     // 如果有DataInst
                     if (set.size() > 0) {
                         for (DataInst dataInst : set) {
+                            // TODO
                             bucketInstDao.addDataInst(userId, bucketId, dataInst);
                         }
                     }
@@ -114,15 +141,55 @@ public class UserDaoImpl extends DaoInst implements UserDao {
     }
 
 
+    /**
+     * 删除自己创建的bucket
+     *
+     * @param userId
+     * @param bucketInstId
+     */
     @Override
     public void deleteBucket(long userId, long bucketInstId) {
-
+        Session session = openSession();
+        BucketInst bucketInst = getBucket(userId, bucketInstId);
+        if (userId == bucketInst.getUserId()) {
+            Transaction ts = session.beginTransaction();
+            session.delete(bucketInst);
+            ts.commit();
+            session.close();
+            // 删除权限表中的内容
+            authorityDao.deleteBucketInstAuthority(bucketInst.getBucketId());
+            Set<DataInst> dataInsts = bucketInst.getDataInsts();
+            if (0 != dataInsts.size()) {
+                for (DataInst dataInst : dataInsts) {
+                    bucketInstDao.deleteDataInst(userId, bucketInstId, dataInst.getDataInstId());
+                }
+            }
+        } else {
+            throw new BucketInstNotFoundException("bucketInst is not found when give userId = "
+                    + userId + " and bucketId = " + bucketInstId);
+        }
     }
 
+    /**
+     * 获取自己创建的Bucket
+     *
+     * @param userId
+     * @param bucketInstId
+     * @return
+     */
     @Override
     public BucketInst getBucket(long userId, long bucketInstId) {
-
-        return null;
+        Session session = openSession();
+        Query query = session.createQuery("from BucketInst where  userId = :para1 and bucketId = :para2");
+        query.setParameter("para1", userId);
+        query.setParameter("para2", bucketInstId);
+        List<BucketInst> list = query.list();
+        session.close();
+        if (0 != list.size()) {
+            return list.get(0);
+        }
+        throw new BucketInstNotFoundException("bucketInst is not found when give userId = "
+                + userId + " and bucketId = " + bucketInstId);
     }
 
     @Override
@@ -130,6 +197,7 @@ public class UserDaoImpl extends DaoInst implements UserDao {
         Session session = openSession();
         Query query = session.createQuery("from BucketInst where bucketId = :id");
         query.setParameter("id", bucketInstId);
+        session.close();
         return 0 != query.list().size() ? true : false;
     }
 

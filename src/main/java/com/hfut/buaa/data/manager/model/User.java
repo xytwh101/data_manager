@@ -8,10 +8,12 @@ import java.util.Set;
  * Created by tanweihan on 16/11/11.
  */
 public class User implements Serializable {
+    private int id;
     private long userId;
     private String userName;
     private String password;
     private Set<BucketInst> buckets = new HashSet<BucketInst>();
+
 
     public User() {
     }
@@ -19,6 +21,14 @@ public class User implements Serializable {
     public User(long userId, String userName) {
         this.userId = userId;
         this.userName = userName;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public long getUserId() {

@@ -25,8 +25,8 @@
         <property name="mappingResources">
             <list>
                 <value>hbms/user.hbm.xml</value>
-                <!--<value>hbms/bucketInstAuthority.hbm.xml</value>-->
-                <!--<value>hbms/dataInstAuthority.hbm.xml</value>-->
+                <value>hbms/bucketInstAuthority.hbm.xml</value>
+                <value>hbms/dataInstAuthority.hbm.xml</value>
                 <value>hbms/bucketInst.hbm.xml</value>
                 <value>hbms/dataInst.hbm.xml</value>
             </list>
@@ -55,7 +55,7 @@
     <bean name="userDao" class="com.hfut.buaa.data.manager.repository.impl.UserDaoImpl"/>
     <bean name="bucketInstDao" class="com.hfut.buaa.data.manager.repository.impl.BucketInstDaoImpl"/>
     <bean name="dataInstDao" class="com.hfut.buaa.data.manager.repository.impl.DataInstDaoImpl"/>
-    <!--<bean name="authorityDao" class="com.hfut.buaa.data.manager.repository.impl.AuthorityDaoImpl"/>-->
+    <bean name="authorityDao" class="com.hfut.buaa.data.manager.repository.impl.AuthorityDaoImpl"/>
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
 </beans>

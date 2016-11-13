@@ -40,4 +40,9 @@ public class Authority {
     public void setAuthority(int authority) {
         this.authority = authority;
     }
+
+    public void initAuthority(Instance instance, int authorityId) {
+
+    }
+
 }

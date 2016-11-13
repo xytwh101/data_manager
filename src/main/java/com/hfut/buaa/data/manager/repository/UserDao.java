@@ -41,7 +41,7 @@ public interface UserDao {
      *
      * @param userId
      */
-    public void deleteUser(long userId);
+    public void deleteUser(long userId,String password);
 
     /**
      * get Buckets Set through userId
