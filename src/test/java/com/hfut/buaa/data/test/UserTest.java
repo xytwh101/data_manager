@@ -29,7 +29,7 @@ public class UserTest extends TestCase {
 
     @Test
     public void createUserTest() {
-
+        // TODO
     }
 
     @Test
@@ -49,6 +49,7 @@ public class UserTest extends TestCase {
         String password = "123";
         String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/password/{password}";
         restTemplate.put(uri, null, userId, password);
+        // TODO
     }
 
     @Test
@@ -72,6 +73,7 @@ public class UserTest extends TestCase {
         try {
             restTemplate.put(uri, bucketInst, userId);
         } catch (HttpClientErrorException e) {
+            System.out.println("a");
             assertEquals("this bucketId " + bucketId + " is exist",
                     e.getResponseHeaders().get("Message").get(0));
             assertEquals(HttpStatus.NOT_ACCEPTABLE, e.getStatusCode());
@@ -79,10 +81,16 @@ public class UserTest extends TestCase {
         try {
             restTemplate.put(uri, bucketInst, warnUserId);
         } catch (HttpClientErrorException e) {
+            System.out.println("b");
             assertEquals("userId is not equal between " +
                             "parameter userId and Instance BucketInst",
                     e.getResponseHeaders().get("Message").get(0));
             assertEquals(HttpStatus.NOT_ACCEPTABLE, e.getStatusCode());
         }
+    }
+
+    @Test
+    public void deleteBucketInst() {
+        // TODO
     }
 }

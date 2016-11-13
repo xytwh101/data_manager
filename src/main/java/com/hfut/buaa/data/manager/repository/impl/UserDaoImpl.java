@@ -197,7 +197,6 @@ public class UserDaoImpl extends DaoInst implements UserDao {
         Session session = openSession();
         Query query = session.createQuery("from BucketInst where bucketId = :id");
         query.setParameter("id", bucketInstId);
-        session.close();
         return 0 != query.list().size() ? true : false;
     }
 

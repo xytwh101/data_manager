@@ -24,12 +24,17 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
     @Override
     public void saveBucketInstAuthority(BucketInst bucketInst, int authId) {
         Session session = openSession();
-        Transaction ts = session.beginTransaction();
-        BucketInstAuthority bucketInstAuthority = new BucketInstAuthority();
-        bucketInstAuthority.initAuthority(bucketInst, authId);
-        session.save(bucketInstAuthority);
-        ts.commit();
-        session.close();
+        try {
+            Transaction ts = session.beginTransaction();
+            BucketInstAuthority bucketInstAuthority = new BucketInstAuthority();
+            bucketInstAuthority.initAuthority(bucketInst, authId);
+            session.save(bucketInstAuthority);
+            ts.commit();
+        } catch (Exception ex) {
+
+        } finally {
+            session.close();
+        }
     }
 
     /**
@@ -38,12 +43,17 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
     @Override
     public void saveDataInstAuthority(DataInst dataInst, int authId) {
         Session session = openSession();
-        Transaction ts = session.beginTransaction();
-        DataInstAuthority dataInstAuthority = new DataInstAuthority();
-        dataInstAuthority.initAuthority(dataInst, authId);
-        session.save(dataInstAuthority);
-        ts.commit();
-        session.close();
+        try {
+            Transaction ts = session.beginTransaction();
+            DataInstAuthority dataInstAuthority = new DataInstAuthority();
+            dataInstAuthority.initAuthority(dataInst, authId);
+            session.save(dataInstAuthority);
+            ts.commit();
+        } catch (Exception ex) {
+
+        } finally {
+            session.close();
+        }
     }
 
     @Override
