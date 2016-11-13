@@ -1,14 +1,15 @@
 package com.hfut.buaa.data.manager.repository.impl;
 
+import com.hfut.buaa.data.manager.exception.CreateBucketValidationException;
 import com.hfut.buaa.data.manager.exception.UserNotFoundException;
 import com.hfut.buaa.data.manager.model.BucketInst;
+import com.hfut.buaa.data.manager.model.DataInst;
 import com.hfut.buaa.data.manager.model.User;
 import com.hfut.buaa.data.manager.repository.BucketInstDao;
 import com.hfut.buaa.data.manager.repository.DaoInst;
 import com.hfut.buaa.data.manager.repository.UserDao;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -85,8 +86,33 @@ public class UserDaoImpl extends DaoInst implements UserDao {
 
     @Override
     public void createBucket(long userId, BucketInst bucketInst) {
-
+        Session session = openSession();
+        long bucketId = bucketInst.getBucketId();
+        if (bucketInst.getUserId() > 0) {
+            if (bucketId > 0) {
+                // TODO 验证bucketId 是否存在
+                if (isExists(bucketId)) {
+                    throw new CreateBucketValidationException(
+                            "this bucketId " + bucketId + " is exist");
+                } else {
+                    session.save(bucketInst);
+                    Set<DataInst> set = bucketInst.getDataInsts();
+                    session.close();
+                    // 如果有DataInst
+                    if (set.size() > 0) {
+                        for (DataInst dataInst : set) {
+                            bucketInstDao.addDataInst(userId, bucketId, dataInst);
+                        }
+                    }
+                }
+            } else {
+                throw new CreateBucketValidationException("a bucketId is necessary!");
+            }
+        } else {
+            throw new CreateBucketValidationException("a userId is necessary!");
+        }
     }
+
 
     @Override
     public void deleteBucket(long userId, long bucketInstId) {
@@ -94,8 +120,17 @@ public class UserDaoImpl extends DaoInst implements UserDao {
     }
 
     @Override
-    public void getBucket(long userId, long bucketInstId) {
+    public BucketInst getBucket(long userId, long bucketInstId) {
 
+        return null;
+    }
+
+    @Override
+    public boolean isExists(long bucketInstId) {
+        Session session = openSession();
+        Query query = session.createQuery("from BucketInst where bucketId = :id");
+        query.setParameter("id", bucketInstId);
+        return 0 != query.list().size() ? true : false;
     }
 
 }

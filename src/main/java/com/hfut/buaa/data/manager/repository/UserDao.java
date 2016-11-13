@@ -72,6 +72,12 @@ public interface UserDao {
      * @param userId
      * @param bucketInstId
      */
-    public void getBucket(long userId, long bucketInstId);
+    public BucketInst getBucket(long userId, long bucketInstId);
+
+    /**
+     * @param bucketInstId
+     * @return
+     */
+    public boolean isExists(long bucketInstId);
 
 }

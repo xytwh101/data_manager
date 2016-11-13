@@ -1,5 +1,6 @@
 package com.hfut.buaa.data.manager.controller;
 
+import com.hfut.buaa.data.manager.exception.CreateBucketValidationException;
 import com.hfut.buaa.data.manager.exception.UserNotFoundException;
 import com.hfut.buaa.data.manager.model.BucketInst;
 import com.hfut.buaa.data.manager.model.User;
@@ -51,12 +52,13 @@ public class UserController {
      * @param request
      * @param response
      */
-    @RequestMapping(value = "/Users/{userId}/userName/{userName}", method = RequestMethod.POST)
+    @RequestMapping(value = "/Users/{userId}/userName/{userName}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.CREATED)
     public void createUser(@PathVariable long userId, @PathVariable String userName,
                            HttpServletRequest request, HttpServletResponse response) {
         userDao.createUser(new User(userId, userName));
-        response.setHeader("Location", request.getRequestURL().append("/").append(userId).toString());
+        response.setHeader("Location", request.getRequestURL()
+                .append("/").append(userId).toString());
     }
 
     /**
@@ -71,6 +73,40 @@ public class UserController {
         return userDao.getBuckets(userId);
     }
 
+
+    /**
+     * 用户创建Bucket，需要通过userId相同的验证
+     *
+     * @param userId
+     * @param bucketInst
+     */
+    @RequestMapping(value = "/Users/{userId}/bucketInst", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createBucket(@PathVariable long userId, @RequestBody BucketInst bucketInst,
+                             HttpServletRequest request, HttpServletResponse response) {
+        long bucketId = bucketInst.getUserId();
+        if (userId == bucketId) {
+            userDao.createBucket(userId, bucketInst);
+            response.setHeader("Location", request.getRequestURL().
+                    append("/").append(bucketId).toString());
+        } else {
+            throw new CreateBucketValidationException("userId is not equal between " +
+                    "parameter userId and Instance BucketInst");
+        }
+    }
+
+    /**
+     * 处理添加Bucket，userId、bucketId等参数的验证异常
+     *
+     * @param ex
+     */
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    @ExceptionHandler(CreateBucketValidationException.class)
+    public void handCreateBucketValidation(CreateBucketValidationException ex,
+                                           HttpServletRequest request, HttpServletResponse response) {
+
+        response.setHeader("Message", ex.getMessage());
+    }
 
     /**
      * 处理未找到user的异常

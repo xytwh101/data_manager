@@ -9,6 +9,7 @@ import java.util.Set;
  * Created by tanweihan on 16/11/11.
  */
 public class Instance {
+    protected int id;
     protected long userId;
     protected long bucketId;
     protected String bucketName;
@@ -23,6 +24,14 @@ public class Instance {
                     Integer.valueOf(authority.getAuthority()));
         }
         return authorityMap;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public long getUserId() {
