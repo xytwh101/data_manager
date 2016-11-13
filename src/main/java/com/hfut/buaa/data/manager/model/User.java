@@ -1,6 +1,7 @@
 package com.hfut.buaa.data.manager.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -10,7 +11,7 @@ public class User implements Serializable {
     private long userId;
     private String userName;
     private String password;
-    private Set<BucketInst> buckets;
+    private Set<BucketInst> buckets = new HashSet<BucketInst>();
 
     public User() {
     }
