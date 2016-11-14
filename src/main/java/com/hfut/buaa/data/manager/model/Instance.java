@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 /**
  * Created by tanweihan on 16/11/11.
  */
@@ -14,6 +13,12 @@ public class Instance {
     protected long bucketId;
     protected String bucketName;
     protected Set<Authority> authoritySet = new HashSet<Authority>();
+
+    public Instance() {
+    }
+
+    public Instance(String json) {
+    }
 
     public Map<Long, Integer> getAuthorityMap() {
         Map<Long, Integer> authorityMap = new HashMap<Long, Integer>();

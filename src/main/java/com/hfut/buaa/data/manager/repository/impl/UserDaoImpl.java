@@ -109,6 +109,7 @@ public class UserDaoImpl extends DaoInst implements UserDao {
     public void createBucket(long userId, BucketInst bucketInst) {
         Session session = openSession();
         Transaction ts = session.beginTransaction();
+        // 验证userId，bucketId是否有效，是否已经存在此bucketId的bucket
         long bucketId = bucketInst.getBucketId();
         if (bucketInst.getUserId() > 0) {
             if (bucketId > 0) {
@@ -127,7 +128,6 @@ public class UserDaoImpl extends DaoInst implements UserDao {
                     // 如果有DataInst
                     if (set.size() > 0) {
                         for (DataInst dataInst : set) {
-                            // TODO
                             bucketInstDao.addDataInst(userId, bucketId, dataInst);
                         }
                     }
@@ -151,6 +151,7 @@ public class UserDaoImpl extends DaoInst implements UserDao {
     public void deleteBucket(long userId, long bucketInstId) {
         Session session = openSession();
         BucketInst bucketInst = getBucket(userId, bucketInstId);
+        // 只能删除自己的Bucket
         if (userId == bucketInst.getUserId()) {
             Transaction ts = session.beginTransaction();
             session.delete(bucketInst);
@@ -180,13 +181,19 @@ public class UserDaoImpl extends DaoInst implements UserDao {
     @Override
     public BucketInst getBucket(long userId, long bucketInstId) {
         Session session = openSession();
-        Query query = session.createQuery("from BucketInst where  userId = :para1 and bucketId = :para2");
+        Transaction transaction = session.beginTransaction();
+        Query query = session.createQuery("from BucketInst " +
+                "where  userId = :para1 and bucketId = :para2");
         query.setParameter("para1", userId);
         query.setParameter("para2", bucketInstId);
         List<BucketInst> list = query.list();
+        transaction.commit();
         session.close();
         if (0 != list.size()) {
-            return list.get(0);
+            BucketInst bucketInst = list.get(0);
+            bucketInst.setAuthoritySet(authorityDao.getBucketInstAuthority(bucketInstId));
+            bucketInst.setDataInsts(bucketInstDao.getDataInsts(bucketInst.getBucketId()));
+            return bucketInst;
         }
         throw new BucketInstNotFoundException("bucketInst is not found when give userId = "
                 + userId + " and bucketId = " + bucketInstId);
@@ -195,9 +202,13 @@ public class UserDaoImpl extends DaoInst implements UserDao {
     @Override
     public boolean isExists(long bucketInstId) {
         Session session = openSession();
+        Transaction transaction = session.beginTransaction();
         Query query = session.createQuery("from BucketInst where bucketId = :id");
         query.setParameter("id", bucketInstId);
-        return 0 != query.list().size() ? true : false;
+        List list = query.list();
+        transaction.commit();
+        session.close();
+        return 0 != list.size() ? true : false;
     }
 
 }

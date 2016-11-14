@@ -58,12 +58,12 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
 
     @Override
     public void deleteBucketInstAuthority(long bucketId) {
-        Set<BucketInstAuthority> set = getBucketInstAuthority(bucketId);
+        Set<Authority> set = getBucketInstAuthority(bucketId);
         if (0 != set.size()) {
             Session session = openSession();
             Transaction ts = session.beginTransaction();
-            for (BucketInstAuthority bucketInstAuthority : set) {
-                session.delete(bucketInstAuthority);
+            for (Authority bucketInstAuthority : set) {
+                session.delete((BucketInstAuthority) bucketInstAuthority);
             }
             ts.commit();
             session.close();
@@ -72,9 +72,9 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
     }
 
     @Override
-    public Set<BucketInstAuthority> getBucketInstAuthority(long bucketId) {
+    public Set<Authority> getBucketInstAuthority(long bucketId) {
         Session session = openSession();
-        Set<BucketInstAuthority> set = new HashSet<BucketInstAuthority>();
+        Set<Authority> set = new HashSet<Authority>();
         try {
             Transaction ts = session.beginTransaction();
             Query query = session.createQuery("from BucketInstAuthority where instId = :bid");
@@ -92,12 +92,12 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
 
     @Override
     public void deleteDataInstAuthority(long dataInstId) {
-        Set<DataInstAuthority> set = getDataInstAuthority(dataInstId);
+        Set<Authority> set = getDataInstAuthority(dataInstId);
         if (0 != set.size()) {
             Session session = openSession();
             Transaction ts = session.beginTransaction();
-            for (DataInstAuthority  dataInstAuthority: set) {
-                session.delete(dataInstAuthority);
+            for (Authority dataInstAuthority : set) {
+                session.delete((DataInstAuthority) dataInstAuthority);
             }
             ts.commit();
             session.close();
@@ -106,9 +106,9 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
     }
 
     @Override
-    public Set<DataInstAuthority> getDataInstAuthority(long dataInstId) {
+    public Set<Authority> getDataInstAuthority(long dataInstId) {
         Session session = openSession();
-        Set<DataInstAuthority> set = new HashSet<DataInstAuthority>();
+        Set<Authority> set = new HashSet<Authority>();
         try {
             Transaction ts = session.beginTransaction();
             Query query = session.createQuery("from DataInstAuthority where instId = :did");

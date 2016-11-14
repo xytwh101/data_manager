@@ -69,7 +69,7 @@ public class UserController {
     }
 
     /**
-     * 返回用户自己创建的bucket以及有权限读取的bucket
+     * 返回用户自己创建的bucket以及有权限读取的bucket，用于测试
      *
      * @param userId
      * @return
@@ -80,6 +80,19 @@ public class UserController {
         return userDao.getBuckets(userId);
     }
 
+
+    /**
+     * 获取用户自己创建的Bucket
+     *
+     * @param userId
+     * @param bucketInstId
+     * @return
+     */
+    @RequestMapping(value = "/Users/{userId}/bucket/{bucketInstId}", method = RequestMethod.GET)
+    @ResponseBody
+    public BucketInst getBucket(@PathVariable long userId, @PathVariable long bucketInstId) {
+        return userDao.getBucket(userId, bucketInstId);
+    }
 
     /**
      * 用户创建Bucket，需要通过userId相同的验证

@@ -1,9 +1,6 @@
 package com.hfut.buaa.data.manager.repository;
 
-import com.hfut.buaa.data.manager.model.BucketInst;
-import com.hfut.buaa.data.manager.model.BucketInstAuthority;
-import com.hfut.buaa.data.manager.model.DataInst;
-import com.hfut.buaa.data.manager.model.DataInstAuthority;
+import com.hfut.buaa.data.manager.model.*;
 
 import java.util.Set;
 
@@ -32,7 +29,7 @@ public interface AuthorityDao {
      * @param bucketId
      * @return
      */
-    public Set<BucketInstAuthority> getBucketInstAuthority(long bucketId);
+    public Set<Authority> getBucketInstAuthority(long bucketId);
 
     /**
      * @param dataInstId
@@ -43,5 +40,6 @@ public interface AuthorityDao {
      * @param dataInstId
      * @return
      */
-    public Set<DataInstAuthority> getDataInstAuthority(long dataInstId);
+    public Set<Authority> getDataInstAuthority(long dataInstId);
+
 }

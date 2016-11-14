@@ -9,8 +9,29 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class DataInstDaoImpl extends DaoInst implements DataInstDao {
+    /**
+     * @param path
+     * @return
+     */
     @Override
     public String getFileString(String path) {
         return null;
+    }
+
+    /**
+     * @param path
+     */
+    @Override
+    public void deleteFileString(String path) {
+
+    }
+
+    /**
+     * @param path
+     * @param file
+     */
+    @Override
+    public void saveFileString(String path, String file) {
+
     }
 }

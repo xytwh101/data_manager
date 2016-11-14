@@ -8,4 +8,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DataInstDao {
     public String getFileString(String path);
+
+    public void deleteFileString(String path);
+
+    public void saveFileString(String path, String file);
 }

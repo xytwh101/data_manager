@@ -1,7 +1,10 @@
 package com.hfut.buaa.data.test;
 
+import com.hfut.buaa.data.manager.model.Authority;
 import com.hfut.buaa.data.manager.model.BucketInst;
+import com.hfut.buaa.data.manager.model.DataInst;
 import com.hfut.buaa.data.manager.model.User;
+import com.hfut.buaa.data.manager.utils.AuthorityType;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,10 +13,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import com.alibaba.fastjson.JSON;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by tanweihan on 16/11/11.
@@ -50,14 +52,57 @@ public class UserTest extends TestCase {
         String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/password/{password}";
         restTemplate.put(uri, null, userId, password);
         // TODO
+
     }
 
     @Test
     public void getBucketsTest() {
         long userId = 111;
         String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/buckets";
-        Set<BucketInst> bucketInst = restTemplate.getForObject(uri, Set.class, userId);
-        assertEquals(2, bucketInst.size());
+        String string = restTemplate.getForObject(uri, String.class, userId);
+        Set<BucketInst> bucketInsts = restTemplate.getForObject(uri, HashSet.class, userId);
+        assertEquals(2, bucketInsts.size());
+    }
+
+    @Test
+    public void getBucket() {
+        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/bucket/{bucketInstId}";
+        long userId = 111;
+        Map<Long, String> bucketMap = new HashMap<Long, String>();
+        bucketMap.put(1l, "buck1");
+        bucketMap.put(2l, "buck2");
+        Map<Long, String> dataMap = new HashMap<Long, String>();
+        dataMap.put(1l, "aaaaaa");
+        dataMap.put(2l, "bbbbbb");
+        dataMap.put(3l, "cccccc");
+        dataMap.put(4l, "dddddd");
+
+        for (Map.Entry<Long, String> entry : bucketMap.entrySet()) {
+            String jsonString = restTemplate.getForObject(uri, String.class, userId, entry.getKey());
+            BucketInst bucketInst = new BucketInst(jsonString);
+            Set<DataInst> dataInsts = bucketInst.getDataInsts();
+            assertEquals(2, dataInsts.size());
+            assertEquals(bucketInst.getBucketName(), bucketMap.get(bucketInst.getBucketId()));
+
+            for (DataInst dataInst : dataInsts) {
+                assertEquals(dataInst.getFilePath(), dataMap.get(dataInst.getDataInstId()));
+                Set<Authority> dautho = dataInst.getAuthoritySet();
+                assertEquals(dautho.size(), 1);
+                for (Authority authority : dautho) {
+                    assertEquals(userId, authority.getUserId());
+                    assertEquals(authority.getInstId(), dataInst.getDataInstId());
+                    assertEquals(authority.getAuthority(), AuthorityType.WRITE.getTypeId());
+                }
+            }
+
+            Set<Authority> bautho = bucketInst.getAuthoritySet();
+            assertEquals(bautho.size(), 1);
+            for (Authority authority : bautho) {
+                assertEquals(userId, authority.getUserId());
+                assertEquals(authority.getInstId(), bucketInst.getBucketId());
+                assertEquals(authority.getAuthority(), AuthorityType.WRITE.getTypeId());
+            }
+        }
     }
 
     @Test
@@ -92,5 +137,7 @@ public class UserTest extends TestCase {
     @Test
     public void deleteBucketInst() {
         // TODO
+
+
     }
 }
