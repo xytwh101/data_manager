@@ -72,7 +72,7 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
         // TODO 检查
         Session session = openSession();
         Transaction transaction = session.beginTransaction();
-        Query query = session.createQuery("select DataInst from DataInst inst ,DataInstAuthority au " +
+        Query query = session.createQuery("select  inst from DataInst inst ,DataInstAuthority au " +
                 "where au.userId = :para1 and au.instId = inst.dataInstId and " +
                 "inst.bucketId = :para2 and au.instId = :para3");
         query.setParameter("para1", userId);
@@ -88,7 +88,7 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
             return data;
         }
         throw new DataInstNotInThisBucketException("this dataInst that id is " +
-                dataInstId + " is not in the bucket where the bucketId is + " + bucketId);
+                dataInstId + " is not in the bucket where the bucketId is " + bucketId);
     }
 
     /**
@@ -101,6 +101,7 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
         Session session = openSession();
         Transaction ts = session.beginTransaction();
         long dataInstId = dataInst.getDataInstId();
+        // TODO 判断是否有这个 user 和 bucket
         if (userId > 0 && bucketId > 0) {
             if (isExist(dataInstId)) {
                 throw new CreateDataInstValidationException(
@@ -134,6 +135,7 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
                 dataInstDao.deleteFileString(dataInst.getFilePath());
                 session.delete(dataInst);
                 transaction.commit();
+                authorityDao.deleteDataInstAuthority(dataInstId);
             } catch (Exception ex) {
 
             } finally {
