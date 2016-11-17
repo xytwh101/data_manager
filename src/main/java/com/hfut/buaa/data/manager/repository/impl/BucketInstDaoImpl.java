@@ -4,12 +4,15 @@ import com.hfut.buaa.data.manager.exception.CreateDataInstValidationException;
 import com.hfut.buaa.data.manager.exception.DataInstNotInThisBucketException;
 import com.hfut.buaa.data.manager.exception.DataInstsNotFoundException;
 import com.hfut.buaa.data.manager.exception.UserNotMatchException;
+import com.hfut.buaa.data.manager.model.BucketInst;
 import com.hfut.buaa.data.manager.model.DataInst;
+import com.hfut.buaa.data.manager.model.User;
 import com.hfut.buaa.data.manager.repository.AuthorityDao;
 import com.hfut.buaa.data.manager.repository.BucketInstDao;
 import com.hfut.buaa.data.manager.repository.DaoInst;
 import com.hfut.buaa.data.manager.repository.DataInstDao;
 import com.hfut.buaa.data.manager.utils.AuthorityType;
+import com.hfut.buaa.data.manager.utils.InstanceType;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -50,7 +53,11 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
         if (0 != list.size()) {
             Set<DataInst> set = new HashSet<DataInst>();
             for (DataInst data : list) {
-                data.setFileString(dataInstDao.getFileString(data.getFilePath()));
+                String filePath = data.getFilePath();
+                // 如果有文件者进行提取
+                if (filePath.length() > 0) {
+                    data.setFileString(dataInstDao.getFileString(filePath));
+                }
                 data.setAuthoritySet(authorityDao.getDataInstAuthority(data.getDataInstId()));
                 set.add(data);
             }
@@ -83,7 +90,11 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
         session.close();
         if (0 != list.size()) {
             DataInst data = list.get(0);
-            data.setFileString(dataInstDao.getFileString(data.getFilePath()));
+            String filePath = data.getFilePath();
+            // 如果有文件者进行提取
+            if (filePath.length() > 0) {
+                data.setFileString(dataInstDao.getFileString(filePath));
+            }
             data.setAuthoritySet(authorityDao.getDataInstAuthority(dataInstId));
             return data;
         }
@@ -101,9 +112,12 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
         Session session = openSession();
         Transaction ts = session.beginTransaction();
         long dataInstId = dataInst.getDataInstId();
-        // TODO 判断是否有这个 user 和 bucket
-        if (userId > 0 && bucketId > 0) {
-            if (isExist(dataInstId)) {
+        // 判断是否有这个 user 和 bucket
+        if (userId > 0
+                && bucketId > 0
+                && isExist(User.class.getName(), userId)
+                && isExist(BucketInst.class.getName(), bucketId)) {
+            if (isExist(DataInst.class.getName(), dataInstId)) {
                 throw new CreateDataInstValidationException(
                         "this dataInstId " + dataInstId + " is exist");
             } else {
@@ -111,8 +125,12 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
                 ts.commit();
                 session.close();
                 authorityDao.saveDataInstAuthority(dataInst, AuthorityType.WRITE.getTypeId());
-                // TODO 添加文件到 hdfs
-                dataInstDao.saveFileString(dataInst.getFilePath(), dataInst.getFileString());
+
+                String fileString = dataInst.getFileString();
+                if (fileString.length() > 0) {
+                    // 构建path TODO
+                    dataInstDao.saveFileString(dataInst.getFilePath(), fileString);
+                }
             }
         } else {
             throw new CreateDataInstValidationException("a bucketId or a userId is necessary!");
@@ -158,11 +176,12 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
     }
 
     @Override
-    public boolean isExist(long dataInstId) {
+    public boolean isExist(String insType, long id) {
         Session session = openSession();
         Transaction transaction = session.beginTransaction();
-        Query query = session.createQuery("from DataInst where dataInstId = :id");
-        query.setParameter("id", dataInstId);
+        Query query = session.createQuery("from " + insType + " where " +
+                InstanceType.getIdName(insType) + " = :id");
+        query.setParameter("id", id);
         List list = query.list();
         transaction.commit();
         session.close();

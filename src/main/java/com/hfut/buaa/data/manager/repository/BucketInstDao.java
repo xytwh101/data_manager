@@ -49,5 +49,5 @@ public interface BucketInstDao {
      * @param dataInstId
      * @return
      */
-    public boolean isExist(long dataInstId);
+    public boolean isExist(String insType, long dataInstId);
 }
