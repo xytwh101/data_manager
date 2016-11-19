@@ -57,5 +57,9 @@
     <bean name="dataInstDao" class="com.hfut.buaa.data.manager.repository.impl.DataInstDaoImpl"/>
     <bean name="authorityDao" class="com.hfut.buaa.data.manager.repository.impl.AuthorityDaoImpl"/>
 
+    <bean id="resourceInst" class="com.hfut.buaa.data.manager.model.ResourceInst" >
+        <property name="resource" value="classpath:hadoop-connect.properties" ></property>
+    </bean>
+
     <tx:annotation-driven transaction-manager="transactionManager"/>
 </beans>

@@ -1,6 +1,5 @@
 package com.hfut.buaa.data.manager.repository.impl;
 
-import com.hfut.buaa.data.manager.exception.BucketInstNotFoundException;
 import com.hfut.buaa.data.manager.exception.DataInstsNotFoundException;
 import com.hfut.buaa.data.manager.model.*;
 import com.hfut.buaa.data.manager.repository.AuthorityDao;
@@ -24,17 +23,12 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
     @Override
     public void saveBucketInstAuthority(BucketInst bucketInst, int authId) {
         Session session = openSession();
-        try {
-            Transaction ts = session.beginTransaction();
-            BucketInstAuthority bucketInstAuthority = new BucketInstAuthority();
-            bucketInstAuthority.initAuthority(bucketInst, authId);
-            session.save(bucketInstAuthority);
-            ts.commit();
-        } catch (Exception ex) {
-            deleteBucketInstAuthority(bucketInst.getBucketId());
-        } finally {
-            session.close();
-        }
+        Transaction ts = session.beginTransaction();
+        BucketInstAuthority bucketInstAuthority = new BucketInstAuthority();
+        bucketInstAuthority.initAuthority(bucketInst, authId);
+        session.save(bucketInstAuthority);
+        ts.commit();
+        session.close();
     }
 
     /**
@@ -43,17 +37,12 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
     @Override
     public void saveDataInstAuthority(DataInst dataInst, int authId) {
         Session session = openSession();
-        try {
-            Transaction ts = session.beginTransaction();
-            DataInstAuthority dataInstAuthority = new DataInstAuthority();
-            dataInstAuthority.initAuthority(dataInst, authId);
-            session.save(dataInstAuthority);
-            ts.commit();
-        } catch (Exception ex) {
-            deleteDataInstAuthority(dataInst.getDataInstId());
-        } finally {
-            session.close();
-        }
+        Transaction ts = session.beginTransaction();
+        DataInstAuthority dataInstAuthority = new DataInstAuthority();
+        dataInstAuthority.initAuthority(dataInst, authId);
+        session.save(dataInstAuthority);
+        ts.commit();
+        session.close();
     }
 
     @Override
@@ -74,18 +63,13 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
     public Set<Authority> getBucketInstAuthority(long bucketId) {
         Session session = openSession();
         Set<Authority> set = new HashSet<Authority>();
-        try {
-            Transaction ts = session.beginTransaction();
-            Query query = session.createQuery("from BucketInstAuthority where instId = :bid");
-            query.setParameter("bid", bucketId);
-            List<BucketInstAuthority> list = query.list();
-            ts.commit();
-            set.addAll(list);
-        } catch (Exception e) {
-
-        } finally {
-            session.close();
-        }
+        Transaction ts = session.beginTransaction();
+        Query query = session.createQuery("from BucketInstAuthority where instId = :bid");
+        query.setParameter("bid", bucketId);
+        List<BucketInstAuthority> list = query.list();
+        ts.commit();
+        set.addAll(list);
+        session.close();
         return set;
     }
 
@@ -100,26 +84,22 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
             }
             ts.commit();
             session.close();
+        } else {
+            throw new DataInstsNotFoundException("dataInst is not found when give and dataInstId = " + dataInstId);
         }
-        throw new DataInstsNotFoundException("dataInst is not found when give and dataInstId = " + dataInstId);
     }
 
     @Override
     public Set<Authority> getDataInstAuthority(long dataInstId) {
         Session session = openSession();
         Set<Authority> set = new HashSet<Authority>();
-        try {
-            Transaction ts = session.beginTransaction();
-            Query query = session.createQuery("from DataInstAuthority where instId = :did");
-            query.setParameter("did", dataInstId);
-            List<DataInstAuthority> list = query.list();
-            ts.commit();
-            set.addAll(list);
-        } catch (Exception e) {
-
-        } finally {
-            session.close();
-        }
+        Transaction ts = session.beginTransaction();
+        Query query = session.createQuery("from DataInstAuthority where instId = :did");
+        query.setParameter("did", dataInstId);
+        List<DataInstAuthority> list = query.list();
+        ts.commit();
+        set.addAll(list);
+        session.close();
         return set;
     }
 

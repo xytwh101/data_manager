@@ -118,22 +118,18 @@ public class UserDaoImpl extends DaoInst implements UserDao {
                             "this bucketId " + bucketId + " is exist");
                 } else {
                     // 储存对象
-                    try {
-                        session.save(bucketInst);
-                        ts.commit();
-                        session.close();
-                        // 权限表添加
-                        authorityDao.saveBucketInstAuthority(
-                                bucketInst, AuthorityType.WRITE.getTypeId());
-                        Set<DataInst> set = bucketInst.getDataInsts();
-                        // 如果有DataInst
-                        if (set.size() > 0) {
-                            for (DataInst dataInst : set) {
-                                bucketInstDao.addDataInst(userId, bucketId, dataInst);
-                            }
+                    session.save(bucketInst);
+                    ts.commit();
+                    session.close();
+                    // 权限表添加
+                    authorityDao.saveBucketInstAuthority(
+                            bucketInst, AuthorityType.WRITE.getTypeId());
+                    Set<DataInst> set = bucketInst.getDataInsts();
+                    // 如果有DataInst
+                    if (set.size() > 0) {
+                        for (DataInst dataInst : set) {
+                            bucketInstDao.addDataInst(userId, bucketId, dataInst);
                         }
-                    } catch (Exception ex) {
-                        deleteBucket(userId, bucketId);
                     }
                 }
             } else {

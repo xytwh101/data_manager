@@ -6,6 +6,7 @@ import com.hfut.buaa.data.manager.exception.DataInstsNotFoundException;
 import com.hfut.buaa.data.manager.exception.UserNotMatchException;
 import com.hfut.buaa.data.manager.model.BucketInst;
 import com.hfut.buaa.data.manager.model.DataInst;
+import com.hfut.buaa.data.manager.model.ResourceInst;
 import com.hfut.buaa.data.manager.model.User;
 import com.hfut.buaa.data.manager.repository.AuthorityDao;
 import com.hfut.buaa.data.manager.repository.BucketInstDao;
@@ -15,13 +16,11 @@ import com.hfut.buaa.data.manager.utils.AuthorityType;
 import com.hfut.buaa.data.manager.utils.InstanceType;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -33,6 +32,8 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
     private DataInstDao dataInstDao;
     @Autowired(required = true)
     private AuthorityDao authorityDao;
+    @Autowired(required = true)
+    private ResourceInst resourceInst;
 
     /**
      * 通过bucketId获取DataInst集合
@@ -121,36 +122,26 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
                 throw new CreateDataInstValidationException(
                         "this dataInstId " + dataInstId + " is exist");
             } else {
+                String fileString = dataInst.getFileString();
+                if (fileString.length() > 0) {
+                    // 构建path TODO
+                    String path = builderFilePath(userId, bucketId, dataInstId);
+                    dataInst.setFilePath(path);
+                    dataInstDao.saveFileString(path, fileString);
+                }
+                authorityDao.saveDataInstAuthority(dataInst, AuthorityType.WRITE.getTypeId());
                 session.save(dataInst);
                 ts.commit();
                 session.close();
-                try {
-                    authorityDao.saveDataInstAuthority(dataInst, AuthorityType.WRITE.getTypeId());
-                    String fileString = dataInst.getFileString();
-                    if (fileString.length() > 0) {
-                        // 构建path
-                        String path = builderFilePath(userId, bucketId, dataInstId);
-                        dataInst.setFilePath(path);
-                        dataInstDao.saveFileString(path, fileString);
-                    }
-                } catch (Exception ex) {
-                    // 如果出现任何问题，就删除
-                    deleteDataInst(userId, bucketId, dataInstId);
-                }
             }
         } else {
             throw new CreateDataInstValidationException("a bucketId or a userId is necessary!");
         }
     }
 
-    private String builderFilePath(long userId, long bucketId, long dataInstId) {
-        InputStream resourceStream = Class.class.getResourceAsStream("/hadoop-connect.properties");
-        Properties properties = new Properties();
-        try {
-            properties.load(resourceStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public String builderFilePath(long userId, long bucketId, long dataInstId) {
+        Properties properties = resourceInst.getProperties();
         StringBuilder builder = new StringBuilder();
         builder.append(properties.getProperty("hadoop-url"))
                 .append("/" + userId)
@@ -171,17 +162,12 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
         DataInst dataInst = getDataInst(userId, bucketId, dataInstId);
         // 确定是创建者，才允许删除
         if (userId == dataInst.getUserId() && bucketId == dataInst.getBucketId()) {
-            try {
-                Transaction transaction = session.beginTransaction();
-                dataInstDao.deleteFileString(dataInst.getFilePath());
-                session.delete(dataInst);
-                transaction.commit();
-                authorityDao.deleteDataInstAuthority(dataInstId);
-            } catch (Exception ex) {
-
-            } finally {
-                session.close();
-            }
+            Transaction transaction = session.beginTransaction();
+            dataInstDao.deleteFileString(dataInst.getFilePath());
+            session.delete(dataInst);
+            transaction.commit();
+            authorityDao.deleteDataInstAuthority(dataInstId);
+            session.close();
         } else {
             throw new UserNotMatchException("this DataInst witch dataInstId is " +
                     dataInstId + " is not created by User that userId is " + userId);

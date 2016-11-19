@@ -1,14 +1,20 @@
 package com.hfut.buaa.data.manager.repository.impl;
 
 import com.hfut.buaa.data.manager.exception.FileAlreadyExistsException;
+import com.hfut.buaa.data.manager.model.BucketInst;
+import com.hfut.buaa.data.manager.model.DataInst;
+import com.hfut.buaa.data.manager.model.User;
+import com.hfut.buaa.data.manager.repository.BucketInstDao;
 import com.hfut.buaa.data.manager.repository.DaoInst;
 import com.hfut.buaa.data.manager.repository.DataInstDao;
 import com.hfut.buaa.data.manager.utils.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -20,6 +26,8 @@ import java.net.URISyntaxException;
  */
 @Repository
 public class DataInstDaoImpl extends DaoInst implements DataInstDao {
+    @Autowired(required = true)
+    private BucketInstDao bucketInstDao;
 
     /**
      * @param path
@@ -92,14 +100,49 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            deleteFileString(url);
         } catch (URISyntaxException e) {
             e.printStackTrace();
-            deleteFileString(url);
         } finally {
             clossAll(writer);
         }
     }
+
+    /**
+     * 更新文件
+     *
+     * @param userId
+     * @param bucketId
+     * @param dataInstId
+     * @param fileString
+     * @param isDelete
+     */
+    @Override
+    public void updateFileString(long userId, long bucketId,
+                                 long dataInstId, String fileString, boolean isDelete) {
+        // TODO: 16/11/19 判断是否存在，id是否能对应上，权限是否为2
+        DataInst dataInst = bucketInstDao.getDataInst(userId, bucketId, dataInstId);
+        String string = dataInst.getFileString();
+        String path = dataInst.getFilePath();
+        if (!isDelete && string.length() > 0) {
+            // 添加
+            // 抛出文件已存在异常
+            throw new FileAlreadyExistsException("file is already exists that userId is " + userId + " and " +
+                    "bucketId is " + bucketId + " and dataInstId is " + dataInstId);
+            // 更新
+        } else if (string.length() > 0 && path.length() > 0) {
+            // delete
+            deleteFileString(path);
+        }
+        path = bucketInstDao.builderFilePath(userId, bucketId, dataInstId);
+        dataInst.setFilePath(path);
+        saveFileString(path, fileString);
+        Session session = openSession();
+        Transaction transaction = session.beginTransaction();
+        session.update(dataInst);
+        transaction.commit();
+        session.close();
+    }
+
 
     private <E extends Closeable> void clossAll(E... es) {
         for (E e : es) {

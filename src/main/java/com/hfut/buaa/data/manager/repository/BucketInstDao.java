@@ -50,4 +50,12 @@ public interface BucketInstDao {
      * @return
      */
     public boolean isExist(String insType, long dataInstId);
+
+    /**
+     * @param userId
+     * @param bucketId
+     * @param dataInstId
+     * @return
+     */
+    public String builderFilePath(long userId, long bucketId, long dataInstId);
 }

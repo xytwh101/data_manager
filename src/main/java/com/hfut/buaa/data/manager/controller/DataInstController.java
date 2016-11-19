@@ -5,8 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
 /**
@@ -37,4 +38,21 @@ public class DataInstController {
             e.printStackTrace();
         }
     }
+
+    @RequestMapping(value = "/User/{userId}/bucket/{bucketId}/dataInst/{dataInstId}/addFile", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addFileToHdfs(@RequestBody String fileString, @PathVariable long userId,
+                              @PathVariable long bucketId, @PathVariable long dataInstId,
+                              HttpServletRequest request, HttpServletResponse response) {
+        dataInstDao.updateFileString(userId, bucketId, dataInstId, fileString, false);
+    }
+
+    @RequestMapping(value = "/User/{userId}/bucket/{bucketId}/dataInst/{dataInstId}/updateFile", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateFileToHdfs(@RequestBody String fileString, @PathVariable long userId,
+                                 @PathVariable long bucketId, @PathVariable long dataInstId,
+                                 HttpServletRequest request, HttpServletResponse response) {
+        dataInstDao.updateFileString(userId, bucketId, dataInstId, fileString, true);
+    }
+
 }

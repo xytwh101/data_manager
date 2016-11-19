@@ -12,4 +12,6 @@ public interface DataInstDao {
     public void deleteFileString(String path);
 
     public void saveFileString(String path, String file);
+
+    public void updateFileString(long userId, long bucketId, long dataInstId, String fileString, boolean b);
 }
