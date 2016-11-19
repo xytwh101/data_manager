@@ -4,6 +4,7 @@ import com.hfut.buaa.data.manager.model.Authority;
 import com.hfut.buaa.data.manager.model.DataInst;
 import com.hfut.buaa.data.manager.model.DataInstAuthority;
 import com.hfut.buaa.data.manager.utils.AuthorityType;
+import com.hfut.buaa.data.manager.utils.FileUtils;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,9 +52,11 @@ public class BucketTest extends TestCase {
         long userId = 444l;
         long bucketInstId = 4444l;
         long dataInstId = 44444l;
+        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
         DataInst dataInst = new DataInst();
         dataInst.setDataInstName("testDelete");
         dataInst.setFilePath("test");
+        dataInst.setFileString(FileUtils.covFile2String(filePath));
         dataInst.setUserId(userId);
         dataInst.setBucketId(bucketInstId);
         dataInst.setDataInstId(dataInstId);
@@ -80,8 +83,9 @@ public class BucketTest extends TestCase {
     }
 
     @Test
-    void getDataInstTest() {
+    public void getDataInstTest() {
         // TODO
+
     }
 
 }

@@ -1,18 +1,17 @@
 package com.hfut.buaa.data.manager.repository.impl;
 
+import com.hfut.buaa.data.manager.exception.FileAlreadyExistsException;
 import com.hfut.buaa.data.manager.repository.DaoInst;
 import com.hfut.buaa.data.manager.repository.DataInstDao;
+import com.hfut.buaa.data.manager.utils.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileAlreadyExistsException;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.springframework.stereotype.Repository;
 
-import java.io.Closeable;
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -21,13 +20,14 @@ import java.net.URISyntaxException;
  */
 @Repository
 public class DataInstDaoImpl extends DaoInst implements DataInstDao {
+
     /**
      * @param path
      * @return
      */
     @Override
     public String getFileString(String path) {
-        Configuration conf = new Configuration();
+        Configuration conf = FileUtils.configuration;
         FileSystem fs = null;
         StringBuilder stringBuilder = new StringBuilder();
         FSDataInputStream hdfsInStream = null;
@@ -92,8 +92,10 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            deleteFileString(url);
         } catch (URISyntaxException e) {
             e.printStackTrace();
+            deleteFileString(url);
         } finally {
             clossAll(writer);
         }

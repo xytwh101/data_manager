@@ -45,12 +45,5 @@ public class DataInstTest extends TestCase {
         }
     }
 
-    @Test
-    public void saveFileToHdfsTest2() {
-        String uri = "http://localhost:8080/data_manager/spring/saveFileTest2";
-        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
-        File file = new File(filePath);
-        restTemplate.put(uri, file, "test.txt");
-    }
 
 }

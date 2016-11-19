@@ -20,9 +20,9 @@ import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * Created by tanweihan on 16/11/12.
@@ -124,17 +124,40 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
                 session.save(dataInst);
                 ts.commit();
                 session.close();
-                authorityDao.saveDataInstAuthority(dataInst, AuthorityType.WRITE.getTypeId());
-
-                String fileString = dataInst.getFileString();
-                if (fileString.length() > 0) {
-                    // 构建path TODO
-                    dataInstDao.saveFileString(dataInst.getFilePath(), fileString);
+                try {
+                    authorityDao.saveDataInstAuthority(dataInst, AuthorityType.WRITE.getTypeId());
+                    String fileString = dataInst.getFileString();
+                    if (fileString.length() > 0) {
+                        // 构建path
+                        String path = builderFilePath(userId, bucketId, dataInstId);
+                        dataInst.setFilePath(path);
+                        dataInstDao.saveFileString(path, fileString);
+                    }
+                } catch (Exception ex) {
+                    // 如果出现任何问题，就删除
+                    deleteDataInst(userId, bucketId, dataInstId);
                 }
             }
         } else {
             throw new CreateDataInstValidationException("a bucketId or a userId is necessary!");
         }
+    }
+
+    private String builderFilePath(long userId, long bucketId, long dataInstId) {
+        InputStream resourceStream = Class.class.getResourceAsStream("/hadoop-connect.properties");
+        Properties properties = new Properties();
+        try {
+            properties.load(resourceStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        StringBuilder builder = new StringBuilder();
+        builder.append(properties.getProperty("hadoop-url"))
+                .append("/" + userId)
+                .append("/" + bucketId)
+                .append("/" + dataInstId)
+                .append("/" + System.currentTimeMillis());
+        return builder.toString();
     }
 
     /**
@@ -177,10 +200,12 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
 
     @Override
     public boolean isExist(String insType, long id) {
+        String[] arr = insType.split("\\.");
+        String className = arr[arr.length - 1];
         Session session = openSession();
         Transaction transaction = session.beginTransaction();
-        Query query = session.createQuery("from " + insType + " where " +
-                InstanceType.getIdName(insType) + " = :id");
+        Query query = session.createQuery("from " + className + " where " +
+                InstanceType.getIdName(className) + " = :id");
         query.setParameter("id", id);
         List list = query.list();
         transaction.commit();

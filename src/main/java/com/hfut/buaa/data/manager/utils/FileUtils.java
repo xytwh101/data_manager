@@ -1,5 +1,6 @@
 package com.hfut.buaa.data.manager.utils;
 
+import org.apache.hadoop.conf.Configuration;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -17,6 +18,8 @@ import java.io.OutputStream;
 
 
 public class FileUtils {
+    public static Configuration configuration = new Configuration();
+
     /**
      * 对文件进行拷贝
      *
@@ -109,24 +112,6 @@ public class FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*char[] car=new char[68];
-        int len=0;
-	    try {
-	    	
-			while(-1!=(len=reader.read(car))){
-				writer.write(car, 0, len);
-			}
-			writer.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}finally{
-			try {
-				reader.close();
-				writer.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}*/
         String line = null;
         try {
             while (null != (line = reader.readLine())) {
@@ -151,5 +136,24 @@ public class FileUtils {
                 }
             }
         }
+    }
+
+    public static String covFile2String(String filePath) {
+        File file = new File(filePath);
+        StringBuilder stringBuilder = new StringBuilder();
+        InputStream inputStream = null;
+        try {
+            byte[] bytes = new byte[1024 * 512];
+            inputStream = new FileInputStream(file);
+            while (inputStream.read(bytes) != -1) {
+                stringBuilder.append(new String(bytes, "utf-8"));
+            }
+            inputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stringBuilder.toString();
     }
 }

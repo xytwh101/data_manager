@@ -31,7 +31,7 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
             session.save(bucketInstAuthority);
             ts.commit();
         } catch (Exception ex) {
-
+            deleteBucketInstAuthority(bucketInst.getBucketId());
         } finally {
             session.close();
         }
@@ -50,7 +50,7 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
             session.save(dataInstAuthority);
             ts.commit();
         } catch (Exception ex) {
-
+            deleteDataInstAuthority(dataInst.getDataInstId());
         } finally {
             session.close();
         }
@@ -68,7 +68,6 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
             ts.commit();
             session.close();
         }
-        throw new BucketInstNotFoundException("bucketInst is not found when give and bucketId = " + bucketId);
     }
 
     @Override
