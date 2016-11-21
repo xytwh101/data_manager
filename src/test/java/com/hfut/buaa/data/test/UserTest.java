@@ -76,24 +76,48 @@ public class UserTest extends TestCase {
         dataMap.put(2l, "bbbbbb");
         dataMap.put(3l, "cccccc");
         dataMap.put(4l, "dddddd");
-
         for (Map.Entry<Long, String> entry : bucketMap.entrySet()) {
             String jsonString = restTemplate.getForObject(uri, String.class, userId, entry.getKey());
             BucketInst bucketInst = new BucketInst(jsonString);
             Set<DataInst> dataInsts = bucketInst.getDataInsts();
             assertEquals(2, dataInsts.size());
             assertEquals(bucketInst.getBucketName(), bucketMap.get(bucketInst.getBucketId()));
-
             for (DataInst dataInst : dataInsts) {
                 assertEquals(dataInst.getFilePath(), dataMap.get(dataInst.getDataInstId()));
             }
-
             Set<Authority> bautho = bucketInst.getAuthoritySet();
-            assertEquals(bautho.size(), 1);
+            assertEquals(bautho.size(), 2);
             for (Authority authority : bautho) {
-                assertEquals(userId, authority.getUserId());
-                assertEquals(authority.getInstId(), bucketInst.getBucketId());
-                assertEquals(authority.getAuthority(), AuthorityType.WRITE.getTypeId());
+                if (authority.getUserId() == 555l || authority.getUserId() == 666l) {
+                    continue;
+                } else {
+                    assertEquals(userId, authority.getUserId());
+                    assertEquals(authority.getInstId(), bucketInst.getBucketId());
+                    assertEquals(authority.getAuthority(), AuthorityType.WRITE.getTypeId());
+                }
+            }
+        }
+        // 测试获取权限为读取的Bucket获取功能
+        long[][] arr = {{555l, 1l}, {666l, 2l}};
+        for (long[] entry : arr) {
+            String json = restTemplate.getForObject(uri, String.class, entry[0], entry[1]);
+            BucketInst bucketInst = new BucketInst(json);
+            Set<DataInst> dataInsts = bucketInst.getDataInsts();
+            assertEquals(2, dataInsts.size());
+            assertEquals(bucketInst.getBucketName(), bucketMap.get(bucketInst.getBucketId()));
+            for (DataInst dataInst : dataInsts) {
+                assertEquals(dataInst.getFilePath(), dataMap.get(dataInst.getDataInstId()));
+            }
+            Set<Authority> bautho = bucketInst.getAuthoritySet();
+            assertEquals(bautho.size(), 2);
+            for (Authority authority : bautho) {
+                if (authority.getUserId() == 555l || authority.getUserId() == 666l) {
+                    assertEquals(entry[0], authority.getUserId());
+                    assertEquals(authority.getInstId(), entry[1]);
+                    assertEquals(authority.getAuthority(), AuthorityType.READ.getTypeId());
+                } else {
+                    continue;
+                }
             }
         }
     }
