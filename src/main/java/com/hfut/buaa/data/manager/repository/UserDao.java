@@ -75,6 +75,12 @@ public interface UserDao {
      */
     public BucketInst getBucket(long userId, long bucketInstId);
 
+    /**
+     * @param userId
+     * @param bucketInst
+     */
+    public void updateBucket(long userId, BucketInst bucketInst);
+
 
     /**
      * @param userId

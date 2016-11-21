@@ -81,12 +81,13 @@ public class BucketTest extends TestCase {
     @Test
     public void updateDataInstTest() {
         // TODO
+        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/bucket/{bucketInstId}";
+
     }
 
     @Test
     public void getDataInstTest() {
         // TODO
-
     }
 
 }

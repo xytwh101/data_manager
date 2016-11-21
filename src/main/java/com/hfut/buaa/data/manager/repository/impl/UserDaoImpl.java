@@ -1,9 +1,6 @@
 package com.hfut.buaa.data.manager.repository.impl;
 
-import com.hfut.buaa.data.manager.exception.AuthorityException;
-import com.hfut.buaa.data.manager.exception.BucketInstNotFoundException;
-import com.hfut.buaa.data.manager.exception.CreateBucketValidationException;
-import com.hfut.buaa.data.manager.exception.UserNotFoundException;
+import com.hfut.buaa.data.manager.exception.*;
 import com.hfut.buaa.data.manager.model.BucketInst;
 import com.hfut.buaa.data.manager.model.BucketInstAuthority;
 import com.hfut.buaa.data.manager.model.DataInst;
@@ -204,6 +201,30 @@ public class UserDaoImpl extends DaoInst implements UserDao {
         }
         throw new BucketInstNotFoundException("bucketInst is not found when give userId = "
                 + userId + " and bucketId = " + bucketInstId);
+    }
+
+    @Override
+    public void updateBucket(long userId, BucketInst bucketInst) {
+        if (userId == bucketInst.getUserId()) {
+            Session session = openSession();
+            Transaction transaction = session.beginTransaction();
+            // 需要先查询出来，再对比，将不同的切不为空的进行更新
+            BucketInst old = getBucket(userId, bucketInst.getBucketId());
+            String name = bucketInst.getBucketName();
+            if (name != old.getBucketName()) {
+                old.setBucketName(name);
+            }
+            session.update(old);
+            // 更改所有dataInst的bucketName
+            for (DataInst dataInst : old.getDataInsts()) {
+                dataInst.setBucketName(name);
+                session.update(dataInst);
+            }
+            transaction.commit();
+            session.close();
+        } else {
+            throw new UserNotMatchException("");
+        }
     }
 
     /**

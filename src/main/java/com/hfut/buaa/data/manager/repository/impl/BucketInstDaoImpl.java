@@ -177,7 +177,24 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
      */
     @Override
     public void updateDataInst(long userId, long bucketId, DataInst dataInst) {
-
+        if (userId == dataInst.getUserId() && bucketId == dataInst.getBucketId()) {
+            long dataInstId = dataInst.getDataInstId();
+            DataInst old = getDataInst(userId, bucketId, dataInstId);
+            String name = dataInst.getDataInstName();
+            String fileString = dataInst.getFileString();
+            if (fileString.length() > 0) {
+                dataInstDao.updateFileString(userId, bucketId, dataInstId, fileString, true);
+            }
+            if (name != old.getDataInstName()) {
+                Session session = openSession();
+                Transaction transaction = session.beginTransaction();
+                old.setDataInstName(name);
+                transaction.commit();
+                session.close();
+            }
+        } else {
+            throw new UserNotMatchException("");
+        }
     }
 
 }

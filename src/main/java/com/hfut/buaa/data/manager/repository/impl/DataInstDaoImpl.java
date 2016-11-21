@@ -135,11 +135,6 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
         path = bucketInstDao.builderFilePath(userId, bucketId, dataInstId);
         dataInst.setFilePath(path);
         saveFileString(path, fileString);
-        Session session = openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(dataInst);
-        transaction.commit();
-        session.close();
     }
 
 
