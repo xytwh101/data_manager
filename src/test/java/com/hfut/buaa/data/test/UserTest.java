@@ -50,7 +50,7 @@ public class UserTest extends TestCase {
         long userId = 333;
         String password = "123";
         String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/password/{password}";
-        restTemplate.put(uri, null, userId, password);
+        // restTemplate.put(uri, null, userId, password);
         // TODO
 
     }
@@ -133,7 +133,7 @@ public class UserTest extends TestCase {
         bucketInst.setBucketName("bucketTest");
         String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/bucketInst";
         try {
-            restTemplate.put(uri, bucketInst, userId);
+            restTemplate.postForLocation(uri, bucketInst, userId);
         } catch (HttpClientErrorException e) {
             System.out.println("a");
             assertEquals("this bucketId " + bucketId + " is exist",
@@ -141,7 +141,7 @@ public class UserTest extends TestCase {
             assertEquals(HttpStatus.NOT_ACCEPTABLE, e.getStatusCode());
         }
         try {
-            restTemplate.put(uri, bucketInst, warnUserId);
+            restTemplate.postForLocation(uri, bucketInst, warnUserId);
         } catch (HttpClientErrorException e) {
             System.out.println("b");
             assertEquals("userId is not equal between " +

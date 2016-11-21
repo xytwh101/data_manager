@@ -4,6 +4,7 @@ package com.hfut.buaa.data.manager.utils;
  * Created by tanweihan on 16/11/11.
  */
 public enum AuthorityType {
+    NO(0),
     READ(1),
     WRITE(2);
 

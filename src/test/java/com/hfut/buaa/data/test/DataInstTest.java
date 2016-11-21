@@ -41,7 +41,7 @@ public class DataInstTest extends TestCase {
         }
         String string = stringBuilder.toString();
         if (string.length() > 0) {
-            restTemplate.put(uri, string, "test");
+            restTemplate.postForLocation(uri, string, "test");
         }
     }
 

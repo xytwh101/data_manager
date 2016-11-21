@@ -2,6 +2,7 @@ package com.hfut.buaa.data.manager.repository;
 
 import com.hfut.buaa.data.manager.model.BucketInst;
 import com.hfut.buaa.data.manager.model.User;
+import com.hfut.buaa.data.manager.utils.UpdateType;
 import org.springframework.stereotype.Repository;
 
 import java.util.Set;
@@ -77,9 +78,9 @@ public interface UserDao {
 
     /**
      * @param userId
-     * @param bucketId
-     * @return
+     * @param bucketInstId
+     * @param authorityUserId
+     * @param type
      */
-    public BucketInst getOthersBucket(long userId, long bucketId);
-
+    public void updateAuthority(long userId, long bucketInstId, long authorityUserId, UpdateType type);
 }

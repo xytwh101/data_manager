@@ -18,7 +18,7 @@ public class DataInstController {
     @Autowired(required = true)
     private DataInstDao dataInstDao;
 
-    @RequestMapping(value = "/save/{fileName}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/save/{fileName}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void saveFileToHdfsTest(@RequestBody String fileString, @PathVariable String fileName) {
         byte[] bytes = new byte[1024 * 512];
@@ -39,7 +39,7 @@ public class DataInstController {
         }
     }
 
-    @RequestMapping(value = "/User/{userId}/bucket/{bucketId}/dataInst/{dataInstId}/addFile", method = RequestMethod.PUT)
+    @RequestMapping(value = "/User/{userId}/bucket/{bucketId}/dataInst/{dataInstId}/addFile", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void addFileToHdfs(@RequestBody String fileString, @PathVariable long userId,
                               @PathVariable long bucketId, @PathVariable long dataInstId,

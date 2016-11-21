@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.alibaba.fastjson.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -68,7 +69,8 @@ public class BucketTest extends TestCase {
         dataInst.setAuthoritySet(set);
         String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/bucket/{bucketInstId}/dataInsts";
         try {
-            restTemplate.put(uri, JSON.toJSONString(dataInst), userId, bucketInstId);
+            restTemplate.postForLocation(uri, JSON.toJSONString(dataInst), userId, bucketInstId);
+            // restTemplate.put(uri, JSON.toJSONString(dataInst), userId, bucketInstId);
         } catch (HttpClientErrorException e) {
             assertEquals("this dataInstId " + dataInstId + " is exist",
                     e.getResponseHeaders().get("Message").get(0));

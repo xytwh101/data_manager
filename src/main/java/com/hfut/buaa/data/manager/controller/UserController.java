@@ -50,7 +50,7 @@ public class UserController {
      * @param request
      * @param response
      */
-    @RequestMapping(value = "/Users/{userId}/userName/{userName}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/Users/{userId}/userName/{userName}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void createUser(@PathVariable long userId, @PathVariable String userName,
                            HttpServletRequest request, HttpServletResponse response) {
@@ -59,7 +59,7 @@ public class UserController {
                 .append("/").append(userId).toString());
     }
 
-    @RequestMapping(value = "/Users/{userId}/password/{password}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/Users/{userId}/password/{password}", method = RequestMethod.POST)
     public void deleteUser(@PathVariable long userId, @PathVariable String password,
                            HttpServletRequest request, HttpServletResponse response) {
         userDao.deleteUser(userId, password);
@@ -97,7 +97,7 @@ public class UserController {
      * @param userId
      * @param bucketInst
      */
-    @RequestMapping(value = "/Users/{userId}/bucketInst", method = RequestMethod.PUT)
+    @RequestMapping(value = "/Users/{userId}/bucketInst", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void createBucket(@PathVariable long userId, @RequestBody BucketInst bucketInst,
                              HttpServletRequest request, HttpServletResponse response) {

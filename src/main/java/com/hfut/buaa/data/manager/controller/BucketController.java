@@ -36,7 +36,7 @@ public class BucketController {
     }
 
     @RequestMapping(value = "/Users/{userId}/bucket/{bucketInstId}/dataInsts",
-            method = RequestMethod.PUT)
+            method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void addDataInst(@PathVariable("userId") long userId, @PathVariable("bucketInstId") long bucketInstId,
                             @RequestBody String json, HttpServletRequest request, HttpServletResponse response) {

@@ -1,9 +1,11 @@
 package com.hfut.buaa.data.manager.repository.impl;
 
+import com.hfut.buaa.data.manager.exception.AuthorityException;
 import com.hfut.buaa.data.manager.exception.BucketInstNotFoundException;
 import com.hfut.buaa.data.manager.exception.CreateBucketValidationException;
 import com.hfut.buaa.data.manager.exception.UserNotFoundException;
 import com.hfut.buaa.data.manager.model.BucketInst;
+import com.hfut.buaa.data.manager.model.BucketInstAuthority;
 import com.hfut.buaa.data.manager.model.DataInst;
 import com.hfut.buaa.data.manager.model.User;
 import com.hfut.buaa.data.manager.repository.AuthorityDao;
@@ -11,6 +13,7 @@ import com.hfut.buaa.data.manager.repository.BucketInstDao;
 import com.hfut.buaa.data.manager.repository.DaoInst;
 import com.hfut.buaa.data.manager.repository.UserDao;
 import com.hfut.buaa.data.manager.utils.AuthorityType;
+import com.hfut.buaa.data.manager.utils.UpdateType;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -203,19 +206,33 @@ public class UserDaoImpl extends DaoInst implements UserDao {
                 + userId + " and bucketId = " + bucketInstId);
     }
 
-
     /**
-     * 得到其他人的BucketInst，需要判断AuthorityBucketInst中是否存在此权限
+     * 给其他用户添加读取权限
      *
-     * @param userId   请求者Id
-     * @param bucketId 其他人的bucketId
-     * @return
+     * @param userId
+     * @param bucketInstId
+     * @param authorityUserId
      */
     @Override
-    public BucketInst getOthersBucket(long userId, long bucketId) {
-        Session session = openSession();
+    public void updateAuthority(long userId, long bucketInstId, long authorityUserId, UpdateType type) {
+        int authorityId = authorityDao.getBucketAuthorityType(bucketInstId, authorityUserId);
+        BucketInst bucket = getBucket(userId, bucketInstId);
+//        if (authorityId == AuthorityType.READ.getTypeId()) {
 
-        return null;
+        if (bucket != null) {
+            Session session = openSession();
+            Transaction transaction = session.beginTransaction();
+            BucketInstAuthority autho = new BucketInstAuthority();
+            autho.initAuthority(bucket, AuthorityType.READ.getTypeId());
+            if (authorityId == AuthorityType.NO.getTypeId()
+                    && type.equals(UpdateType.CREATE)) {
+                session.save(autho);
+            } else if (authorityId == AuthorityType.READ.getTypeId()
+                    && type.equals(UpdateType.DELETE)) {
+                session.delete(autho);
+            }
+            transaction.commit();
+            session.close();
+        }
     }
-
 }

@@ -113,7 +113,6 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
         // 判断是否有这个 user 和 bucket
         if (userId > 0
                 && bucketId > 0
-                && isExist(User.class.getName(), userId)
                 && isExist(BucketInst.class.getName(), bucketId)) {
             if (isExist(DataInst.class.getName(), dataInstId)) {
                 throw new CreateDataInstValidationException(
