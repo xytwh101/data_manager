@@ -95,7 +95,6 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
                 writer.write(bytes);
                 writer.flush();
             } else {
-                // TODO
                 throw new FileAlreadyExistsException("hdfs file " + url + " is alread exists!");
             }
         } catch (IOException e) {
@@ -119,7 +118,7 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
     @Override
     public void updateFileString(long userId, long bucketId,
                                  long dataInstId, String fileString, boolean isDelete) {
-        // TODO: 16/11/19 判断是否存在，id是否能对应上，权限是否为2
+        // 判断是否存在，id是否能对应上，权限是否为2
         DataInst dataInst = bucketInstDao.getDataInst(userId, bucketId, dataInstId);
         String string = dataInst.getFileString();
         String path = dataInst.getFilePath();
@@ -144,15 +143,4 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
     }
 
 
-    private <E extends Closeable> void clossAll(E... es) {
-        for (E e : es) {
-            if (null != e) {
-                try {
-                    e.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }
-    }
 }

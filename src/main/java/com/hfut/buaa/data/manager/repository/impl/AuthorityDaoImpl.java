@@ -103,5 +103,17 @@ public class AuthorityDaoImpl extends DaoInst implements AuthorityDao {
         return set;
     }
 
+    @Override
+    public int getBucketAuthorityType(long userId, long bucketId) {
+        Session session = openSession();
+        Transaction ts = session.beginTransaction();
+        Query query = session.createQuery("from BucketInstAuthority where userId = :uid and instId = :bid");
+        query.setParameter("uid", userId).setParameter("bid", bucketId);
+        List<BucketInstAuthority> list = query.list();
+        ts.commit();
+        session.close();
+        return list.size() > 0 ? list.get(0).getAuthority() : 0;
+    }
+
 
 }

@@ -45,11 +45,6 @@ public interface BucketInstDao {
      */
     public void updateDataInst(long userId, long bucketId, DataInst dataInst);
 
-    /**
-     * @param dataInstId
-     * @return
-     */
-    public boolean isExist(String insType, long dataInstId);
 
     /**
      * @param userId

@@ -43,7 +43,6 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
      */
     @Override
     public Set<DataInst> getDataInsts(long bucketId) {
-        //TODO 添加权限验证
         Session session = openSession();
         Transaction transaction = session.beginTransaction();
         Query query = session.createQuery("from DataInst where bucketId=:para ");
@@ -59,7 +58,7 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
                 if (filePath.length() > 0) {
                     data.setFileString(dataInstDao.getFileString(filePath));
                 }
-                data.setAuthoritySet(authorityDao.getDataInstAuthority(data.getDataInstId()));
+                // data.setAuthoritySet(authorityDao.getDataInstAuthority(data.getDataInstId()));
                 set.add(data);
             }
             return set;
@@ -77,27 +76,25 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
      */
     @Override
     public DataInst getDataInst(long userId, long bucketId, long dataInstId) {
-        // TODO 检查
         Session session = openSession();
         Transaction transaction = session.beginTransaction();
-        Query query = session.createQuery("select  inst from DataInst inst ,DataInstAuthority au " +
-                "where au.userId = :para1 and au.instId = inst.dataInstId and " +
-                "inst.bucketId = :para2 and au.instId = :para3");
-        query.setParameter("para1", userId);
-        query.setParameter("para2", bucketId);
-        query.setParameter("para3", dataInstId);
-        List<DataInst> list = query.list();
-        transaction.commit();
-        session.close();
-        if (0 != list.size()) {
-            DataInst data = list.get(0);
-            String filePath = data.getFilePath();
-            // 如果有文件者进行提取
-            if (filePath.length() > 0) {
-                data.setFileString(dataInstDao.getFileString(filePath));
+        // 判断该用户是否有权限
+        if (authorityDao.getBucketAuthorityType(userId, bucketId) > 0) {
+            Query query = session.createQuery("from DataInst where bucketId = :bid and dataInstId = :did");
+            query.setParameter("bid", bucketId).setParameter("did", dataInstId);
+            List<DataInst> list = query.list();
+            transaction.commit();
+            session.close();
+            if (0 != list.size()) {
+                DataInst data = list.get(0);
+                String filePath = data.getFilePath();
+                // 如果有文件者进行提取
+                if (filePath.length() > 0) {
+                    data.setFileString(dataInstDao.getFileString(filePath));
+                }
+                // data.setAuthoritySet(authorityDao.getDataInstAuthority(dataInstId));
+                return data;
             }
-            data.setAuthoritySet(authorityDao.getDataInstAuthority(dataInstId));
-            return data;
         }
         throw new DataInstNotInThisBucketException("this dataInst that id is " +
                 dataInstId + " is not in the bucket where the bucketId is " + bucketId);
@@ -129,7 +126,7 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
                     dataInst.setFilePath(path);
                     dataInstDao.saveFileString(path, fileString);
                 }
-                authorityDao.saveDataInstAuthority(dataInst, AuthorityType.WRITE.getTypeId());
+                // authorityDao.saveDataInstAuthority(dataInst, AuthorityType.WRITE.getTypeId());
                 session.save(dataInst);
                 ts.commit();
                 session.close();
@@ -166,7 +163,7 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
             dataInstDao.deleteFileString(dataInst.getFilePath());
             session.delete(dataInst);
             transaction.commit();
-            authorityDao.deleteDataInstAuthority(dataInstId);
+            // authorityDao.deleteDataInstAuthority(dataInstId);
             session.close();
         } else {
             throw new UserNotMatchException("this DataInst witch dataInstId is " +
@@ -182,21 +179,6 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
     @Override
     public void updateDataInst(long userId, long bucketId, DataInst dataInst) {
 
-    }
-
-    @Override
-    public boolean isExist(String insType, long id) {
-        String[] arr = insType.split("\\.");
-        String className = arr[arr.length - 1];
-        Session session = openSession();
-        Transaction transaction = session.beginTransaction();
-        Query query = session.createQuery("from " + className + " where " +
-                InstanceType.getIdName(className) + " = :id");
-        query.setParameter("id", id);
-        List list = query.list();
-        transaction.commit();
-        session.close();
-        return 0 != list.size() ? true : false;
     }
 
 }

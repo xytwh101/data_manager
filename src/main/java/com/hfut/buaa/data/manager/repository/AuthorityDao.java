@@ -42,4 +42,11 @@ public interface AuthorityDao {
      */
     public Set<Authority> getDataInstAuthority(long dataInstId);
 
+    /**
+     * @param userId
+     * @param bucketId
+     * @return
+     */
+    public int getBucketAuthorityType(long userId, long bucketId);
+
 }

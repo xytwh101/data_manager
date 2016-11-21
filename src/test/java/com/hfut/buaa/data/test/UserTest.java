@@ -86,13 +86,6 @@ public class UserTest extends TestCase {
 
             for (DataInst dataInst : dataInsts) {
                 assertEquals(dataInst.getFilePath(), dataMap.get(dataInst.getDataInstId()));
-                Set<Authority> dautho = dataInst.getAuthoritySet();
-                assertEquals(dautho.size(), 1);
-                for (Authority authority : dautho) {
-                    assertEquals(userId, authority.getUserId());
-                    assertEquals(authority.getInstId(), dataInst.getDataInstId());
-                    assertEquals(authority.getAuthority(), AuthorityType.WRITE.getTypeId());
-                }
             }
 
             Set<Authority> bautho = bucketInst.getAuthoritySet();

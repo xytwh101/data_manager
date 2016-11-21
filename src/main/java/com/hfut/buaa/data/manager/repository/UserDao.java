@@ -41,7 +41,7 @@ public interface UserDao {
      *
      * @param userId
      */
-    public void deleteUser(long userId,String password);
+    public void deleteUser(long userId, String password);
 
     /**
      * get Buckets Set through userId
@@ -74,10 +74,12 @@ public interface UserDao {
      */
     public BucketInst getBucket(long userId, long bucketInstId);
 
+
     /**
-     * @param bucketInstId
+     * @param userId
+     * @param bucketId
      * @return
      */
-    public boolean isExists(long bucketInstId);
+    public BucketInst getOthersBucket(long userId, long bucketId);
 
 }
