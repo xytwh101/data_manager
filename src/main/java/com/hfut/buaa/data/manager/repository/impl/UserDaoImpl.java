@@ -184,7 +184,7 @@ public class UserDaoImpl extends DaoInst implements UserDao {
         Transaction transaction = session.beginTransaction();
         int authorityType = 0;
         if ((authorityType =
-                authorityDao.getBucketAuthorityType(userId, bucketInstId)) > 0) {
+                authorityDao.getBucketAuthorityInst(userId, bucketInstId).getAuthority()) > 0) {
             // 拥有权限
             Query query = session.createQuery("from BucketInst " +
                     "where bucketId = :para");
@@ -236,24 +236,26 @@ public class UserDaoImpl extends DaoInst implements UserDao {
      */
     @Override
     public void updateAuthority(long userId, long bucketInstId, long authorityUserId, UpdateType type) {
-        int authorityId = authorityDao.getBucketAuthorityType(bucketInstId, authorityUserId);
+        int authorityId = authorityDao.
+                getBucketAuthorityInst(authorityUserId, bucketInstId).getAuthority();
         BucketInst bucket = getBucket(userId, bucketInstId);
-//        if (authorityId == AuthorityType.READ.getTypeId()) {
-
         if (bucket != null) {
             Session session = openSession();
             Transaction transaction = session.beginTransaction();
             BucketInstAuthority autho = new BucketInstAuthority();
-            autho.initAuthority(bucket, AuthorityType.READ.getTypeId());
             if (authorityId == AuthorityType.NO.getTypeId()
                     && type.equals(UpdateType.CREATE)) {
+                autho.buildAuthority(bucket, authorityUserId, AuthorityType.READ.getTypeId());
                 session.save(autho);
             } else if (authorityId == AuthorityType.READ.getTypeId()
                     && type.equals(UpdateType.DELETE)) {
+                autho = authorityDao.getBucketAuthorityInst(authorityUserId, bucketInstId);
                 session.delete(autho);
             }
             transaction.commit();
             session.close();
         }
     }
+
+
 }

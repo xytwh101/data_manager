@@ -39,7 +39,7 @@ public class DataInstController {
         }
     }
 
-    @RequestMapping(value = "/User/{userId}/bucket/{bucketId}/dataInst/{dataInstId}/addFile", method = RequestMethod.POST)
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}/dataInst/{dataInstId}/addFile", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void addFileToHdfs(@RequestBody String fileString, @PathVariable long userId,
                               @PathVariable long bucketId, @PathVariable long dataInstId,
@@ -47,7 +47,7 @@ public class DataInstController {
         dataInstDao.updateFileString(userId, bucketId, dataInstId, fileString, false);
     }
 
-    @RequestMapping(value = "/User/{userId}/bucket/{bucketId}/dataInst/{dataInstId}/updateFile", method = RequestMethod.PUT)
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}/dataInst/{dataInstId}/updateFile", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void updateFileToHdfs(@RequestBody String fileString, @PathVariable long userId,
                                  @PathVariable long bucketId, @PathVariable long dataInstId,

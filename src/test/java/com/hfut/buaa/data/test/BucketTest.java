@@ -15,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.alibaba.fastjson.*;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,8 +35,8 @@ public class BucketTest extends TestCase {
         long bucketInstId = 4444l;
         long dataInstId = 44444l;
         addDataInstTest();
-        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/" +
-                "bucketInst/{bucketInstId}/dataInst/{dataInstId}";
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/" +
+                "bucket/{bucketInstId}/dataInst/{dataInstId}";
         try {
             restTemplate.delete(uri, userId, bucketInstId, dataInstId);
             restTemplate.delete(uri, userId, bucketInstId, dataInstId);
@@ -67,9 +68,9 @@ public class BucketTest extends TestCase {
         authority.setAuthority(AuthorityType.WRITE.getTypeId());
         set.add(authority);
         dataInst.setAuthoritySet(set);
-        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/bucket/{bucketInstId}/dataInsts";
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/bucket/{bucketInstId}/dataInst/{dataInstId}";
         try {
-            restTemplate.postForLocation(uri, JSON.toJSONString(dataInst), userId, bucketInstId);
+            restTemplate.postForLocation(uri, JSON.toJSONString(dataInst), userId, bucketInstId, dataInstId);
             // restTemplate.put(uri, JSON.toJSONString(dataInst), userId, bucketInstId);
         } catch (HttpClientErrorException e) {
             assertEquals("this dataInstId " + dataInstId + " is exist",
@@ -80,14 +81,46 @@ public class BucketTest extends TestCase {
 
     @Test
     public void updateDataInstTest() {
-        // TODO
-        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/bucket/{bucketInstId}";
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/bucket/{bucketInstId}/dataInst/{dataInstId}";
+        long userId = 444l;
+        long bucketInstId = 4444l;
+        long dataInstId = 44444l;
+        String filePathNew = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test3.txt";
+        DataInst dataInst = new DataInst();
+        String fileString = FileUtils.covFile2String(filePathNew);
+        dataInst.setFileString(fileString);
+        dataInst.setUserId(userId);
+        dataInst.setBucketId(bucketInstId);
+        dataInst.setDataInstId(dataInstId);
+        dataInst.setDataInstName("testUpdate");
+        restTemplate.put(uri, dataInst, userId, bucketInstId, dataInstId);
 
+        DataInst dataInstNew = new DataInst(
+                restTemplate.getForObject(uri, String.class, userId, bucketInstId, dataInstId));
+
+        assertEquals(dataInst.getDataInstName(), dataInstNew.getDataInstName());
+        assertEquals(dataInstNew.getFileString().equals(fileString), true);
+        String filePathOld = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
+        dataInst.setFileString(FileUtils.covFile2String(filePathOld));
+        dataInst.setDataInstName("testDelete");
+        restTemplate.put(uri, dataInst, userId, bucketInstId, dataInstId);
     }
 
     @Test
     public void getDataInstTest() {
-        // TODO
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/bucket/{bucketInstId}/dataInst/{dataInstId}";
+        long userId = 444l;
+        long bucketInstId = 4444l;
+        long dataInstId = 44444l;
+        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
+        DataInst dataInst = new DataInst(restTemplate.
+                getForObject(uri, String.class, userId, bucketInstId, dataInstId));
+
+        assertEquals(userId, dataInst.getUserId());
+        assertEquals(bucketInstId, dataInst.getBucketId());
+        assertEquals(dataInstId, dataInst.getDataInstId());
+        assertEquals("testDelete", dataInst.getDataInstName());
+        assertEquals(FileUtils.covFile2String(filePath), dataInst.getFileString());
     }
 
 }

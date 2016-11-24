@@ -59,4 +59,8 @@ public class Authority {
 
     }
 
+    public void buildAuthority(Instance instance, long authorityUserId, int authorityId) {
+
+    }
+
 }

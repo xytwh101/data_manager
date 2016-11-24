@@ -15,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.alibaba.fastjson.JSON;
 
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -30,15 +31,10 @@ public class UserTest extends TestCase {
     private final String TEST_PASSWORD = "123";
 
     @Test
-    public void createUserTest() {
-        // TODO
-    }
-
-    @Test
     public void loginTest() {
         long userId = 111;
         String password = "111";
-        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/password/{password}";
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/password/{password}";
         User user = restTemplate.getForObject(uri, User.class, userId, password);
         assertEquals(user.getUserId(), userId);
         assertEquals(user.getPassword(), password);
@@ -46,19 +42,9 @@ public class UserTest extends TestCase {
     }
 
     @Test
-    public void deleteUserTest() {
-        long userId = 333;
-        String password = "123";
-        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/password/{password}";
-        // restTemplate.put(uri, null, userId, password);
-        // TODO
-
-    }
-
-    @Test
     public void getBucketsTest() {
         long userId = 111;
-        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/buckets";
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/buckets";
         String string = restTemplate.getForObject(uri, String.class, userId);
         Set<BucketInst> bucketInsts = restTemplate.getForObject(uri, HashSet.class, userId);
         assertEquals(2, bucketInsts.size());
@@ -66,7 +52,7 @@ public class UserTest extends TestCase {
 
     @Test
     public void getBucket() {
-        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/bucket/{bucketInstId}";
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/bucket/{bucketInstId}";
         long userId = 111;
         Map<Long, String> bucketMap = new HashMap<Long, String>();
         bucketMap.put(1l, "buck1");
@@ -131,9 +117,9 @@ public class UserTest extends TestCase {
         bucketInst.setUserId(userId);
         bucketInst.setBucketId(bucketId);
         bucketInst.setBucketName("bucketTest");
-        String uri = "http://localhost:8080/data_manager/spring/Users/{userId}/bucketInst";
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/bucket/{bucketInstId}";
         try {
-            restTemplate.postForLocation(uri, bucketInst, userId);
+            restTemplate.postForLocation(uri, bucketInst, userId, bucketId);
         } catch (HttpClientErrorException e) {
             System.out.println("a");
             assertEquals("this bucketId " + bucketId + " is exist",
@@ -141,7 +127,7 @@ public class UserTest extends TestCase {
             assertEquals(HttpStatus.NOT_ACCEPTABLE, e.getStatusCode());
         }
         try {
-            restTemplate.postForLocation(uri, bucketInst, warnUserId);
+            restTemplate.postForLocation(uri, bucketInst, warnUserId, bucketId);
         } catch (HttpClientErrorException e) {
             System.out.println("b");
             assertEquals("userId is not equal between " +
@@ -153,8 +139,65 @@ public class UserTest extends TestCase {
 
     @Test
     public void deleteBucketInst() {
-        // TODO
+        createBucketTest();
+        long userId = 222l;
+        long warnUserId = 333l;
+        long bucketId = 123l;
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/bucket/{bucketInstId}";
+        restTemplate.delete(uri, userId, bucketId);
+        try {
+            restTemplate.getForObject(uri, String.class, userId, bucketId);
+        } catch (HttpClientErrorException e) {
+            assertEquals("bucketInst is not found when give userId = "
+                    + userId + " and bucketId = " + bucketId, e.getResponseHeaders().get("Message").get(0));
+        }
+    }
 
+    @Test
+    public void updateBucketInst() {
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/bucket/{bucketInstId}";
+        long userId = 111l;
+        long bucketInstId = 1l;
+        String bucketName = "buck";
+        BucketInst bucketInst = new BucketInst();
+        bucketInst.setUserId(userId);
+        bucketInst.setBucketName(bucketName);
+        bucketInst.setBucketId(bucketInstId);
+        restTemplate.put(uri, bucketInst, userId, bucketInstId);
+        bucketInst = new BucketInst(restTemplate.getForObject(uri, String.class, userId, bucketInstId));
+        assertEquals(bucketName, bucketInst.getBucketName());
+        for (DataInst dataInst : bucketInst.getDataInsts()) {
+            assertEquals(bucketName, dataInst.getBucketName());
+        }
+        bucketName = "buck1";
+        bucketInst.setBucketName(bucketName);
+        bucketInst.setDataInsts(new HashSet<DataInst>());
+        bucketInst.setAuthoritySet(new HashSet<Authority>());
+        restTemplate.put(uri, bucketInst, userId, bucketInstId);
+    }
 
+    @Test
+    public void updateBucketAuthority() {
+        String uri = "http://localhost:8080/data_manager/spring/" +
+                "user/{userId}/bucket/{bucketInstId}/user/{authorityUserId}";
+        long userId = 111l;
+        long authorityId = 666l;
+        long bucketId = 1l;
+        restTemplate.postForLocation(uri, null, userId, bucketId, authorityId);
+        String uri2 = "http://localhost:8080/data_manager/spring/" +
+                "user/{userId}/bucket/{bucketInstId}";
+        BucketInst bucketInst = new BucketInst(
+                restTemplate.getForObject(uri2, String.class, authorityId, bucketId));
+        assertEquals(userId, bucketInst.getUserId());
+        assertEquals(AuthorityType.READ.getTypeId(),
+                bucketInst.getAuthorityMap().get(authorityId).intValue());
+
+        restTemplate.delete(uri, userId, bucketId, authorityId);
+//        try {
+//            bucketInst = new BucketInst(
+//                    restTemplate.getForObject(uri2, String.class, authorityId, bucketId));
+//        } catch (HttpClientErrorException e) {
+//            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+//        }
     }
 }

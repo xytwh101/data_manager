@@ -44,6 +44,4 @@ public class DataInstTest extends TestCase {
             restTemplate.postForLocation(uri, string, "test");
         }
     }
-
-
 }

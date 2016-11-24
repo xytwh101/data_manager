@@ -132,7 +132,6 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
             // delete
             deleteFileString(path);
         }
-        path = bucketInstDao.builderFilePath(userId, bucketId, dataInstId);
         dataInst.setFilePath(path);
         saveFileString(path, fileString);
     }

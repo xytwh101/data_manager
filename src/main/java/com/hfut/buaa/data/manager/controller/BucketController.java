@@ -3,6 +3,7 @@ package com.hfut.buaa.data.manager.controller;
 import com.hfut.buaa.data.manager.exception.CreateDataInstValidationException;
 import com.hfut.buaa.data.manager.exception.DataInstNotInThisBucketException;
 import com.hfut.buaa.data.manager.exception.DataInstsNotFoundException;
+import com.hfut.buaa.data.manager.exception.UserNotMatchException;
 import com.hfut.buaa.data.manager.model.DataInst;
 import com.hfut.buaa.data.manager.model.ResourceInst;
 import com.hfut.buaa.data.manager.repository.BucketInstDao;
@@ -26,7 +27,7 @@ public class BucketController {
     @Autowired
     private ResourceInst resourceInst;
 
-    @RequestMapping(value = "/Users/{userId}/bucketInst/{bucketInstId}/dataInst/{dataInstId}",
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}/dataInst/{dataInstId}",
             method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void deleteDataInst(@PathVariable long userId,
@@ -35,14 +36,49 @@ public class BucketController {
         bucketInstDao.deleteDataInst(userId, bucketInstId, dataInstId);
     }
 
-    @RequestMapping(value = "/Users/{userId}/bucket/{bucketInstId}/dataInsts",
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}/dataInst/{dataInstId}",
             method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void addDataInst(@PathVariable("userId") long userId, @PathVariable("bucketInstId") long bucketInstId,
-                            @RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
-        bucketInstDao.addDataInst(userId, bucketInstId, new DataInst(json));
+                            @PathVariable("dataInstId") long dataInstId, @RequestBody String json,
+                            HttpServletRequest request, HttpServletResponse response) {
+        DataInst dataInst = new DataInst(json);
+        if (userId == dataInst.getUserId()
+                && bucketInstId == dataInst.getBucketId()
+                && dataInstId == dataInst.getDataInstId())
+            bucketInstDao.addDataInst(userId, bucketInstId, dataInst);
+        else
+            throw new UserNotMatchException("");
     }
 
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}/dataInst/{dataInstId}",
+            method = RequestMethod.GET)
+    @ResponseBody
+    public DataInst getDataInst(@PathVariable("userId") long userId,
+                                @PathVariable("bucketInstId") long bucketInstId,
+                                @PathVariable("dataInstId") long dataInstId,
+                                HttpServletRequest request, HttpServletResponse response) {
+        DataInst dataInst = bucketInstDao.getDataInst(userId, bucketInstId, dataInstId);
+        return dataInst;
+    }
+
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}/dataInst/{dataInstId}",
+            method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateDataInst(@PathVariable("userId") long userId,
+                                   @PathVariable("bucketInstId") long bucketInstId,
+                                   @PathVariable("dataInstId") long dataInstId,
+                                   @RequestBody String jsonString,
+                                   HttpServletRequest request, HttpServletResponse response) {
+        DataInst dataInst = new DataInst(jsonString);
+        if (userId == dataInst.getUserId()
+                && bucketInstId == dataInst.getBucketId()
+                && dataInstId == dataInst.getDataInstId()) {
+            bucketInstDao.updateDataInst(userId, bucketInstId, dataInst);
+        } else {
+            throw new UserNotMatchException("");
+        }
+    }
 
     /**
      * 处理添加Bucket，userId、bucketId等参数的验证异常

@@ -1,11 +1,10 @@
 package com.hfut.buaa.data.manager.controller;
 
-import com.hfut.buaa.data.manager.exception.BucketInstNotFoundException;
-import com.hfut.buaa.data.manager.exception.CreateBucketValidationException;
-import com.hfut.buaa.data.manager.exception.UserNotFoundException;
+import com.hfut.buaa.data.manager.exception.*;
 import com.hfut.buaa.data.manager.model.BucketInst;
 import com.hfut.buaa.data.manager.model.User;
 import com.hfut.buaa.data.manager.repository.UserDao;
+import com.hfut.buaa.data.manager.utils.UpdateType;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,7 @@ public class UserController {
      * @param password
      * @return
      */
-    @RequestMapping(value = "/Users/{userId}/password/{password}", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/password/{password}", method = RequestMethod.GET)
     @ResponseBody
     public User getUser(@PathVariable long userId, @PathVariable String password) {
         return userDao.getUserByPassword(userId, password);
@@ -50,7 +49,7 @@ public class UserController {
      * @param request
      * @param response
      */
-    @RequestMapping(value = "/Users/{userId}/userName/{userName}", method = RequestMethod.POST)
+    @RequestMapping(value = "/user/{userId}/userName/{userName}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void createUser(@PathVariable long userId, @PathVariable String userName,
                            HttpServletRequest request, HttpServletResponse response) {
@@ -59,7 +58,7 @@ public class UserController {
                 .append("/").append(userId).toString());
     }
 
-    @RequestMapping(value = "/Users/{userId}/password/{password}", method = RequestMethod.POST)
+    @RequestMapping(value = "/users/{userId}/password/{password}", method = RequestMethod.POST)
     public void deleteUser(@PathVariable long userId, @PathVariable String password,
                            HttpServletRequest request, HttpServletResponse response) {
         userDao.deleteUser(userId, password);
@@ -71,7 +70,7 @@ public class UserController {
      * @param userId
      * @return
      */
-    @RequestMapping(value = "/Users/{userId}/buckets", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/buckets", method = RequestMethod.GET)
     @ResponseBody
     public Set<BucketInst> getBuckets(@PathVariable long userId) {
         return userDao.getBuckets(userId);
@@ -85,7 +84,7 @@ public class UserController {
      * @param bucketInstId
      * @return
      */
-    @RequestMapping(value = "/Users/{userId}/bucket/{bucketInstId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}", method = RequestMethod.GET)
     @ResponseBody
     public BucketInst getBucket(@PathVariable long userId, @PathVariable long bucketInstId) {
         return userDao.getBucket(userId, bucketInstId);
@@ -97,18 +96,105 @@ public class UserController {
      * @param userId
      * @param bucketInst
      */
-    @RequestMapping(value = "/Users/{userId}/bucketInst", method = RequestMethod.POST)
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public void createBucket(@PathVariable long userId, @RequestBody BucketInst bucketInst,
+    public void createBucket(@PathVariable long userId,
+                             @PathVariable long bucketInstId,
+                             @RequestBody BucketInst bucketInst,
                              HttpServletRequest request, HttpServletResponse response) {
-        long bucketId = bucketInst.getUserId();
-        if (userId == bucketId) {
+        long user = bucketInst.getUserId();
+        if (userId == user && bucketInstId == bucketInst.getBucketId()) {
             userDao.createBucket(userId, bucketInst);
             response.setHeader("Location", request.getRequestURL().
-                    append("/").append(bucketId).toString());
+                    append("/").append(user).toString());
         } else {
             throw new CreateBucketValidationException("userId is not equal between " +
                     "parameter userId and Instance BucketInst");
+        }
+    }
+
+    /**
+     * 更新bucket，仅更新bucket以及所有dataInst的bucketName
+     *
+     * @param userId
+     * @param bucketInstId
+     * @param bucketInst
+     * @param request
+     * @param response
+     */
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateBucket(@PathVariable long userId,
+                             @PathVariable long bucketInstId,
+                             @RequestBody String bucketInst,
+                             HttpServletRequest request, HttpServletResponse response) {
+        BucketInst bucket = new BucketInst(bucketInst);
+        if (bucket.getUserId() != userId || bucket.getBucketId() != bucketInstId) {
+            throw new CreateBucketValidationException("userId is not equal between " +
+                    "parameter userId and Instance BucketInst");
+        } else {
+            userDao.updateBucket(userId, bucket);
+        }
+    }
+
+    /**
+     * 删除bucket
+     *
+     * @param userId
+     * @param bucketInstId
+     * @param request
+     * @param response
+     */
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void deleteBucket(@PathVariable long userId, @PathVariable long bucketInstId,
+                             HttpServletRequest request, HttpServletResponse response) {
+        userDao.deleteBucket(userId, bucketInstId);
+    }
+
+    /**
+     * 给authorityUserId添加userId的bucket权限
+     *
+     * @param userId
+     * @param bucketInstId
+     * @param authorityUserId
+     * @param request
+     * @param response
+     */
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}/user/{authorityUserId}",
+            method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addBucketAuthority(@PathVariable long userId,
+                                   @PathVariable long bucketInstId,
+                                   @PathVariable long authorityUserId,
+                                   HttpServletRequest request, HttpServletResponse response) {
+        if (userId != authorityUserId) {
+            userDao.updateAuthority(userId, bucketInstId, authorityUserId, UpdateType.CREATE);
+        } else {
+            throw new AuthorityException("");
+        }
+    }
+
+    /**
+     * 删除权限
+     *
+     * @param userId
+     * @param bucketInstId
+     * @param authorityUserId
+     * @param request
+     * @param response
+     */
+    @RequestMapping(value = "/user/{userId}/bucket/{bucketInstId}/user/{authorityUserId}",
+            method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void deleteBucketAuthority(@PathVariable long userId,
+                                      @PathVariable long bucketInstId,
+                                      @PathVariable long authorityUserId,
+                                      HttpServletRequest request, HttpServletResponse response) {
+        if (userId != authorityUserId) {
+            userDao.updateAuthority(userId, bucketInstId, authorityUserId, UpdateType.DELETE);
+        } else {
+            throw new AuthorityException("");
         }
     }
 

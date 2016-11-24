@@ -19,4 +19,10 @@ public class BucketInstAuthority extends Authority {
         setAuthority(authorityId);
         setInstId(bucketInst.getBucketId());
     }
+
+    @Override
+    public void buildAuthority(Instance instance, long authorityUserId, int authorityId) {
+        initAuthority(instance, authorityId);
+        setUserId(authorityUserId);
+    }
 }

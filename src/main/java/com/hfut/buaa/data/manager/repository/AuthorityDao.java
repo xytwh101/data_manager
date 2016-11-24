@@ -47,6 +47,6 @@ public interface AuthorityDao {
      * @param bucketId
      * @return
      */
-    public int getBucketAuthorityType(long userId, long bucketId);
+    public BucketInstAuthority getBucketAuthorityInst(long userId, long bucketId);
 
 }

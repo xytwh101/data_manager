@@ -2,25 +2,20 @@ package com.hfut.buaa.data.manager.repository.impl;
 
 import com.hfut.buaa.data.manager.exception.CreateDataInstValidationException;
 import com.hfut.buaa.data.manager.exception.DataInstNotInThisBucketException;
-import com.hfut.buaa.data.manager.exception.DataInstsNotFoundException;
 import com.hfut.buaa.data.manager.exception.UserNotMatchException;
 import com.hfut.buaa.data.manager.model.BucketInst;
 import com.hfut.buaa.data.manager.model.DataInst;
 import com.hfut.buaa.data.manager.model.ResourceInst;
-import com.hfut.buaa.data.manager.model.User;
 import com.hfut.buaa.data.manager.repository.AuthorityDao;
 import com.hfut.buaa.data.manager.repository.BucketInstDao;
 import com.hfut.buaa.data.manager.repository.DaoInst;
 import com.hfut.buaa.data.manager.repository.DataInstDao;
-import com.hfut.buaa.data.manager.utils.AuthorityType;
-import com.hfut.buaa.data.manager.utils.InstanceType;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -50,8 +45,8 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
         List<DataInst> list = query.list();
         transaction.commit();
         session.close();
+        Set<DataInst> set = new HashSet<DataInst>();
         if (0 != list.size()) {
-            Set<DataInst> set = new HashSet<DataInst>();
             for (DataInst data : list) {
                 String filePath = data.getFilePath();
                 // 如果有文件者进行提取
@@ -61,10 +56,8 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
                 // data.setAuthoritySet(authorityDao.getDataInstAuthority(data.getDataInstId()));
                 set.add(data);
             }
-            return set;
         }
-        throw new DataInstsNotFoundException(
-                "there is no DataInsts in BucketInst that bucketId is " + bucketId + " !");
+        return set;
     }
 
     /**
@@ -79,7 +72,7 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
         Session session = openSession();
         Transaction transaction = session.beginTransaction();
         // 判断该用户是否有权限
-        if (authorityDao.getBucketAuthorityType(userId, bucketId) > 0) {
+        if (authorityDao.getBucketAuthorityInst(userId, bucketId).getAuthority() > 0) {
             Query query = session.createQuery("from DataInst where bucketId = :bid and dataInstId = :did");
             query.setParameter("bid", bucketId).setParameter("did", dataInstId);
             List<DataInst> list = query.list();
@@ -120,7 +113,7 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
             } else {
                 String fileString = dataInst.getFileString();
                 if (fileString.length() > 0) {
-                    // 构建path TODO
+                    // 构建path
                     String path = builderFilePath(userId, bucketId, dataInstId);
                     dataInst.setFilePath(path);
                     dataInstDao.saveFileString(path, fileString);
@@ -189,6 +182,7 @@ public class BucketInstDaoImpl extends DaoInst implements BucketInstDao {
                 Session session = openSession();
                 Transaction transaction = session.beginTransaction();
                 old.setDataInstName(name);
+                session.update(old);
                 transaction.commit();
                 session.close();
             }
