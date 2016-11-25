@@ -1,0 +1,45 @@
+{
+  //  自动生成id
+  "id": 14,
+  //  创建者id
+  "userId": 111,
+  "bucketId": 1,
+  "bucketName": "buck1",
+  //  权限集合，权限为1表示可以读取，权限为2表示该用户为创建者，可以读写
+  "authoritySet": [
+    {
+      "id": 1,
+      "userId": 111,
+      "instId": 1,
+      "authority": 2
+    },
+    {
+      "id": 7,
+      "userId": 555,
+      "instId": 1,
+      "authority": 1
+    }
+  ],
+  //  object集合
+  "dataInsts": [
+    {
+      "id": 1,
+      "userId": 111,
+      "bucketId": 1,
+      "bucketName": "buck1",
+      // 不需要权限set
+      "authoritySet": [],
+      "dataInstId": 1,
+      "dataInstName": "data1",
+      // 文件字符串
+      "fileString": "aaaaaaaaaaaaaaaaaaa",
+      "filePath": "aaaaaa",
+      "authorityMap": null
+    }
+  ],
+  //  bucket的权限map，key表示用户id，value表示权限id
+  "authorityMap": {
+    "111": 2,
+    "555": 1
+  }
+}

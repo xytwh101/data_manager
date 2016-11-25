@@ -47,10 +47,10 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
             while ((len = hdfsInStream.read(bytes)) != -1) {
                 stringBuilder.append(new String(bytes, "utf-8"));
             }
+            hdfsInStream.close();
+            fs.close();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            clossAll(hdfsInStream, fs);
         }
         return stringBuilder.toString();
     }
@@ -94,6 +94,8 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
                 bytes = fileString.getBytes("utf-8");
                 writer.write(bytes);
                 writer.flush();
+                writer.close();
+                hdfs.close();
             } else {
                 throw new FileAlreadyExistsException("hdfs file " + url + " is alread exists!");
             }
@@ -101,8 +103,6 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
             e.printStackTrace();
         } catch (URISyntaxException e) {
             e.printStackTrace();
-        } finally {
-            clossAll(writer);
         }
     }
 
