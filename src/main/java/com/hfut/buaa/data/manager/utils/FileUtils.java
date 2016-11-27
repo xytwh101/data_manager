@@ -1,20 +1,9 @@
 package com.hfut.buaa.data.manager.utils;
 
 import org.apache.hadoop.conf.Configuration;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.apache.hadoop.fs.Path;
+
+import java.io.*;
 
 
 public class FileUtils {
@@ -140,13 +129,14 @@ public class FileUtils {
 
     public static String covFile2String(String filePath) {
         File file = new File(filePath);
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuffer stringBuffer = new StringBuffer();
         InputStream inputStream = null;
         try {
-            byte[] bytes = new byte[1024 * 512];
+            byte[] bytes = new byte[1024];
+            int len;
             inputStream = new FileInputStream(file);
-            while (inputStream.read(bytes) != -1) {
-                stringBuilder.append(new String(bytes, "utf-8"));
+            while ((len = inputStream.read(bytes)) != -1) {
+                stringBuffer.append(bytesToString(bytes));
             }
             inputStream.close();
         } catch (FileNotFoundException e) {
@@ -154,6 +144,63 @@ public class FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return stringBuilder.toString();
+        return stringBuffer.toString();
+    }
+
+    public static void writeFile(String fileString, String path) {
+        byte[] bytes = new byte[1024];
+        File file = new File(path);
+        OutputStream outputStream;
+        try {
+            bytes = stringToBytes(fileString);
+            outputStream = new BufferedOutputStream(new FileOutputStream(file));
+            outputStream.write(bytes);
+            outputStream.flush();
+            outputStream.close();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String bytesToString(byte[] src) {
+        if (src == null || src.length <= 0) {
+            return null;
+        }
+
+        StringBuffer stringBuffer = new StringBuffer();
+        for (int i = 0; i < src.length; i++) {
+            // 之所以用byte和0xff相与，是因为int是32位，与0xff相与后就舍弃前面的24位，只保留后8位
+            String str = Integer.toHexString(src[i] & 0xff);
+            if (str.length() < 2) { // 不足两位要补0
+                stringBuffer.append(0);
+            }
+            stringBuffer.append(str);
+        }
+        return stringBuffer.toString();
+    }
+
+    public static byte[] stringToBytes(String hexString) {
+        if (hexString == null || hexString.equals("")) {
+            return null;
+        }
+
+        int length = hexString.length() / 2;
+        char[] hexChars = hexString.toCharArray();
+        byte[] bytes = new byte[length];
+        String hexDigits = "0123456789abcdef";
+        for (int i = 0; i < length; i++) {
+            int pos = i * 2; // 两个字符对应一个byte
+            int h = hexDigits.indexOf(hexChars[pos]) << 4; // 注1
+            int l = hexDigits.indexOf(hexChars[pos + 1]); // 注2
+            if (h == -1 || l == -1) { // 非16进制字符
+                return null;
+            }
+            bytes[i] = (byte) (h | l);
+        }
+        return bytes;
     }
 }

@@ -1,5 +1,6 @@
 package com.hfut.buaa.data.test;
 
+import com.hfut.buaa.data.manager.utils.FileUtils;
 import junit.framework.TestCase;
 import org.apache.hadoop.fs.*;
 import org.junit.Test;
@@ -28,21 +29,7 @@ public class DataInstTest extends TestCase {
         String uri = "http://localhost:8080/data_manager/spring/save/{fileName}";
         String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
         File file = new File(filePath);
-        StringBuilder stringBuilder = new StringBuilder();
-        InputStream inputStream = null;
-        try {
-            byte[] bytes = new byte[1024 * 512];
-            inputStream = new FileInputStream(file);
-            while (inputStream.read(bytes) != -1) {
-                stringBuilder.append(new String(bytes, "utf-8"));
-            }
-            inputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String string = stringBuilder.toString();
+        String string = FileUtils.covFile2String(filePath);
         if (string.length() > 0) {
             restTemplate.postForLocation(uri, string, "test");
         }
@@ -51,29 +38,29 @@ public class DataInstTest extends TestCase {
 
     @Test
     public void testHdfs() {
-        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
-        String url = "hdfs://114.213.234.15:8020/";
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            FileSystem hdfs = FileSystem.get(new java.net.URI(url),
-                    new org.apache.hadoop.conf.Configuration());
-            Path path = new Path("hdfs://114.213.234.15:8020/output2/part-r-00000");
-            // hdfs.mkdirs(path);
-            boolean b = hdfs.exists(path);
-            FSDataInputStream inputStream = hdfs.open(path);
-            hdfs.copyFromLocalFile(new Path("/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt"),
-                    new Path("hdfs://114.213.234.15:8020/output2/test"));
-//            byte[] bytes = new byte[100];
-//            while (inputStream.read(bytes) != -1) {
-//                stringBuilder.append(new String(bytes, "utf-8"));
-//            }
-            System.out.println(stringBuilder.toString());
-            System.out.println(b);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+//        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
+//        String url = "hdfs://114.213.234.15:8020/";
+//        StringBuilder stringBuilder = new StringBuilder();
+//        try {
+//            FileSystem hdfs = FileSystem.get(new java.net.URI(url),
+//                    new org.apache.hadoop.conf.Configuration());
+//            Path path = new Path("hdfs://114.213.234.15:8020/output2/part-r-00000");
+//            // hdfs.mkdirs(path);
+//            boolean b = hdfs.exists(path);
+//            FSDataInputStream inputStream = hdfs.open(path);
+//            hdfs.copyFromLocalFile(new Path("/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt"),
+//                    new Path("hdfs://114.213.234.15:8020/output2/test"));
+////            byte[] bytes = new byte[100];
+////            while (inputStream.read(bytes) != -1) {
+////                stringBuilder.append(new String(bytes, "utf-8"));
+////            }
+//            System.out.println(stringBuilder.toString());
+//            System.out.println(b);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (URISyntaxException e) {
+//            e.printStackTrace();
+//        }
 
 
     }

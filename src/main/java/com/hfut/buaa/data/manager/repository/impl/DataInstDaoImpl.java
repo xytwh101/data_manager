@@ -9,6 +9,7 @@ import com.hfut.buaa.data.manager.repository.DaoInst;
 import com.hfut.buaa.data.manager.repository.DataInstDao;
 import com.hfut.buaa.data.manager.utils.FileUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.BufferedFSInputStream;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -37,22 +38,23 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
     public String getFileString(String path) {
         Configuration conf = FileUtils.configuration;
         FileSystem fs = null;
-        StringBuilder stringBuilder = new StringBuilder();
-        FSDataInputStream hdfsInStream = null;
+        StringBuffer stringBuffer = new StringBuffer();
+        InputStream hdfsInStream = null;
+        BufferedInputStream in = null;
         try {
-            byte[] bytes = new byte[1024 * 512];
+            byte[] bytes = new byte[1024];
             fs = FileSystem.get(URI.create(path), conf);
             hdfsInStream = fs.open(new Path(path));
-            int len = 0;
-            while ((len = hdfsInStream.read(bytes)) != -1) {
-                stringBuilder.append(new String(bytes, "utf-8"));
+            in = new BufferedInputStream(hdfsInStream);
+            int len;
+            while ((len = in.read(bytes)) != -1) {
+                stringBuffer.append(FileUtils.bytesToString(bytes));
             }
-            hdfsInStream.close();
-            fs.close();
+            clossAll(fs, hdfsInStream, in);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return stringBuilder.toString();
+        return stringBuffer.toString();
     }
 
     /**
@@ -83,18 +85,17 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
      */
     @Override
     public void saveFileString(String url, String fileString) {
-        byte[] bytes = new byte[1024 * 512];
-        DataOutputStream writer = null;
+        byte[] bytes = new byte[1024];
+        OutputStream outputStream = null;
         try {
             FileSystem hdfs = FileSystem.get(new java.net.URI(url),
                     new org.apache.hadoop.conf.Configuration());
             Path path = new Path(url);
             if (!hdfs.exists(path)) {
-                writer = new DataOutputStream(hdfs.create(path));
-                bytes = fileString.getBytes("utf-8");
-                writer.write(bytes);
-                writer.flush();
-                writer.close();
+                outputStream = hdfs.create(path);
+                outputStream.write(FileUtils.stringToBytes(fileString));
+                outputStream.flush();
+                outputStream.close();
                 hdfs.close();
             } else {
                 throw new FileAlreadyExistsException("hdfs file " + url + " is alread exists!");
@@ -132,7 +133,6 @@ public class DataInstDaoImpl extends DaoInst implements DataInstDao {
             // delete
             deleteFileString(path);
         }
-        dataInst.setFilePath(path);
         saveFileString(path, fileString);
     }
 

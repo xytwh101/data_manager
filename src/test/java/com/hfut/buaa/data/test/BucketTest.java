@@ -53,7 +53,7 @@ public class BucketTest extends TestCase {
         long userId = 444l;
         long bucketInstId = 4444l;
         long dataInstId = 44444l;
-        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
+        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/image.jpg";
         DataInst dataInst = new DataInst();
         dataInst.setDataInstName("testDelete");
         dataInst.setFilePath("test");
@@ -85,7 +85,7 @@ public class BucketTest extends TestCase {
         long userId = 444l;
         long bucketInstId = 4444l;
         long dataInstId = 44444l;
-        String filePathNew = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test3.txt";
+        String filePathNew = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/imageUpdate.jpg";
         DataInst dataInst = new DataInst();
         String fileString = FileUtils.covFile2String(filePathNew);
         dataInst.setFileString(fileString);
@@ -99,8 +99,8 @@ public class BucketTest extends TestCase {
                 restTemplate.getForObject(uri, String.class, userId, bucketInstId, dataInstId));
 
         assertEquals(dataInst.getDataInstName(), dataInstNew.getDataInstName());
-        // assertEquals(dataInstNew.getFileString().equals(fileString), true);
-        String filePathOld = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
+        assertEquals(dataInstNew.getFileString().equals(fileString), true);
+        String filePathOld = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/image.jpg";
         dataInst.setFileString(FileUtils.covFile2String(filePathOld));
         dataInst.setDataInstName("testDelete");
         restTemplate.put(uri, dataInst, userId, bucketInstId, dataInstId);
@@ -112,7 +112,7 @@ public class BucketTest extends TestCase {
         long userId = 444l;
         long bucketInstId = 4444l;
         long dataInstId = 44444l;
-        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
+        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/image.jpg";
         String jsonString = restTemplate.
                 getForObject(uri, String.class, userId, bucketInstId, dataInstId);
         DataInst dataInst = new DataInst(jsonString);
@@ -121,6 +121,8 @@ public class BucketTest extends TestCase {
         assertEquals(dataInstId, dataInst.getDataInstId());
         assertEquals("testDelete", dataInst.getDataInstName());
         assertEquals(FileUtils.covFile2String(filePath), dataInst.getFileString());
+        FileUtils.writeFile(dataInst.getFileString(),
+                "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/image2.jpg");
     }
 
 }
