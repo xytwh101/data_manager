@@ -53,9 +53,26 @@ public class UserDaoImpl extends DaoInst implements UserDao {
     @Override
     public void createUser(User user) {
         Session session = openSession();
-        session.save(user);
+        Transaction ts = session.beginTransaction();
+        if (isExistUser(user.getUserId())) {
+            throw new UserAlreadyExistsException("user id " + user.getUserId() + "is already exists.");
+        } else {
+            session.save(user);
+        }
+        ts.commit();
         session.close();
     }
+
+    @Override
+    public boolean isExistUser(long userId) {
+        Session session = openSession();
+        Transaction ts = session.beginTransaction();
+        Query query = session.createQuery("from User where userId = :para");
+        query.setParameter("para", userId);
+        List result = query.list();
+        return result.size() == 0 ? false : true;
+    }
+
 
     @Override
     public void deleteUser(long userId, String password) {

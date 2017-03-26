@@ -27,7 +27,7 @@ public class DataInstTest extends TestCase {
     @Test
     public void saveFileToHdfsTest() {
         String uri = "http://localhost:8080/data_manager/spring/save/{fileName}";
-        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
+        String filePath = "/Users/tanweihan/workspace/data_manager/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
         File file = new File(filePath);
         String string = FileUtils.covFile2String(filePath);
         if (string.length() > 0) {

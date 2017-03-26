@@ -42,6 +42,36 @@ public class UserTest extends TestCase {
     }
 
     @Test
+    public void register() {
+        // exists
+        long userId = 111;
+        String password = "111";
+        String uri = "http://192.168.0.106:8080/data_manager/spring/user/{userId}/password/{password}";
+        restTemplate.postForLocation(uri, new User(userId, "", password), userId, password);
+        // not exists
+        restTemplate.postForLocation(uri, new User(999, "", "222"), 999, "222");
+    }
+
+    @Test
+    public void androidTest() {
+        String uri = "http://192.168.0.106:8080/data_manager/spring/android/{android}";
+        long android = 111111111;
+        restTemplate.postForLocation(uri, null, android);
+    }
+
+    @Test
+    public void updateUser() {
+        // exists
+        long userId = 999;
+        String password = "222";
+        String newPassword = "333";
+        String userName = "test";
+        String uri = "http://localhost:8080/data_manager/spring/user/{userId}/password/{password}";
+        restTemplate.put(uri, null, userId, password, newPassword, userName);
+
+    }
+
+    @Test
     public void getBucketsTest() {
         long userId = 111;
         String uri = "http://localhost:8080/data_manager/spring/user/{userId}/buckets";

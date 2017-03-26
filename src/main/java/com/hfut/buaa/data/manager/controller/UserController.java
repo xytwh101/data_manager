@@ -45,20 +45,35 @@ public class UserController {
      * 创建user
      *
      * @param userId
-     * @param userName
      * @param request
      * @param response
      */
-    @RequestMapping(value = "/user/{userId}/userName/{userName}", method = RequestMethod.POST)
+    @RequestMapping(value = "/user/{userId}/password/{password}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public void createUser(@PathVariable long userId, @PathVariable String userName,
+    public void createUser(@PathVariable long userId, @PathVariable String password, @RequestBody User user,
                            HttpServletRequest request, HttpServletResponse response) {
-        userDao.createUser(new User(userId, userName));
+        userDao.createUser(user);
         response.setHeader("Location", request.getRequestURL()
                 .append("/").append(userId).toString());
     }
 
-    @RequestMapping(value = "/users/{userId}/password/{password}", method = RequestMethod.POST)
+    /**
+     * 创建user
+     *
+     * @param android
+     * @param request
+     * @param response
+     */
+    @RequestMapping(value = "/android/{android}", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    public void android(@PathVariable long android,
+                        HttpServletRequest request, HttpServletResponse response) {
+        userDao.createUser(new User(android, "", "111"));
+        response.setHeader("Location", request.getRequestURL()
+                .append("/").append(android).toString());
+    }
+
+    @RequestMapping(value = "/users/{userId}/password/{password}", method = RequestMethod.DELETE)
     public void deleteUser(@PathVariable long userId, @PathVariable String password,
                            HttpServletRequest request, HttpServletResponse response) {
         userDao.deleteUser(userId, password);
@@ -232,6 +247,17 @@ public class UserController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({UserNotFoundException.class})
     public void handleUserNotFound(UserNotFoundException pe) {
+        logger.warn(pe.getMessage());
+    }
+
+    /**
+     * 处理未找到user的异常
+     *
+     * @param pe
+     */
+    @ResponseStatus(HttpStatus.FOUND)
+    @ExceptionHandler({UserAlreadyExistsException.class})
+    public void handleUserAlreadyExists(UserAlreadyExistsException pe) {
         logger.warn(pe.getMessage());
     }
 

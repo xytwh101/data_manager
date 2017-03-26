@@ -34,7 +34,7 @@ public class HdfsTest extends TestCase {
     private RestTemplate restTemplate = new RestTemplate();
 
     public static void main(String[] args) {
-        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
+        String filePath = "/Users/tanweihan/workspace/data_manager/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt";
         String url = "hdfs://192.168.0.112:9000/";
         StringBuilder stringBuilder = new StringBuilder();
         try {
@@ -44,7 +44,7 @@ public class HdfsTest extends TestCase {
             hdfs.mkdirs(path);
             boolean b = hdfs.exists(path);
             // FSDataInputStream inputStream = hdfs.open(path);
-            hdfs.copyFromLocalFile(new Path("/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt"),
+            hdfs.copyFromLocalFile(new Path("/Users/tanweihan/workspace/data_manager/data_manager/src/test/java/com/hfut/buaa/data/test/files/test.txt"),
                     new Path("hdfs://192.168.0.112:9000/user/tanweihan/sss"));
 ////            byte[] bytes = new byte[100];
 ////            while (inputStream.read(bytes) != -1) {
@@ -64,7 +64,7 @@ public class HdfsTest extends TestCase {
         long userId = 888l;
         long bucketInstId = 8888l;
         long dataInstId = 88888l;
-        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/image.jpg";
+        String filePath = "/Users/tanweihan/workspace/data_manager/data_manager/src/test/java/com/hfut/buaa/data/test/files/image.jpg";
         DataInst dataInst = new DataInst();
         dataInst.setDataInstName("testImage");
         dataInst.setFileString(FileUtils.covFile2String(filePath));
@@ -89,14 +89,14 @@ public class HdfsTest extends TestCase {
 
         String imageString = restTemplate.getForObject(uri, String.class, userId, bucketInstId, dataInstId);
         FileUtils.writeFile(imageString,
-                "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/imageCopy.jpg");
+                "/Users/tanweihan/workspace/data_manager/data_manager/src/test/java/com/hfut/buaa/data/test/files/imageCopy.jpg");
     }
 
 
     @Test
     public void fileCopyTest() {
-        String filePath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/image.jpg";
-        String copyPath = "/Users/tanweihan/twhGit/data_manager/src/test/java/com/hfut/buaa/data/test/files/imageCopy.jpg";
+        String filePath = "/Users/tanweihan/workspace/data_manager/data_manager/src/test/java/com/hfut/buaa/data/test/files/image.jpg";
+        String copyPath = "/Users/tanweihan/workspace/data_manager/data_manager/src/test/java/com/hfut/buaa/data/test/files/imageCopy.jpg";
         FileUtils.fileCopy(filePath, copyPath);
     }
 }

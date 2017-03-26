@@ -120,7 +120,7 @@
             <artifactId>commons-dbcp</artifactId>
             <version>1.2.2</version>
         </dependency>
-        <!-- Spring framework -->
+        <!--&lt;!&ndash; Spring framework &ndash;&gt;-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -142,7 +142,7 @@
             <version>${spring.version}</version>
         </dependency>
 
-        <!-- Servlet -->
+        <!--&lt;!&ndash; Servlet &ndash;&gt;-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -155,14 +155,14 @@
             <version>${jstl.version}</version>
         </dependency>
 
-        <!-- Logging -->
+        <!--&lt;!&ndash; Logging &ndash;&gt;-->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${log4j.version}</version>
         </dependency>
 
-        <!-- Testing -->
+        <!--&lt;!&ndash; Testing &ndash;&gt;-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -174,7 +174,7 @@
             <version>${junit.version}</version>
         </dependency>
 
-        <!-- JSON -->
+        <!--&lt;!&ndash; JSON &ndash;&gt;-->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
@@ -193,7 +193,7 @@
             <version>1.5</version>
         </dependency>
 
-        <!--hibernate-->
+        <!--&lt;!&ndash;hibernate&ndash;&gt;-->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
@@ -204,7 +204,7 @@
             <artifactId>javassist</artifactId>
             <version>3.12.1.GA</version>
         </dependency>
-        <!--database-->
+        <!--&lt;!&ndash;database&ndash;&gt;-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -218,7 +218,7 @@
         </dependency>
 
 
-        <!--scala-->
+        <!--&lt;!&ndash;scala&ndash;&gt;-->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
@@ -248,26 +248,11 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common -->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.hadoop</groupId>-->
-        <!--<artifactId>hadoop-common</artifactId>-->
-        <!--<version>2.2.0</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.hadoop</groupId>-->
-        <!--<artifactId>hadoop-hdfs</artifactId>-->
-        <!--<version>2.2.0</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.hadoop</groupId>-->
-        <!--<artifactId>hadoop-core</artifactId>-->
-        <!--<version>1.2.1</version>-->
-        <!--</dependency>-->
+        <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-core_2.10 -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.10</artifactId>
-            <version>${spark.version}</version>
+            <version>1.6.2</version>
         </dependency>
 
         <dependency>

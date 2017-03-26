@@ -89,4 +89,9 @@ public interface UserDao {
      * @param type
      */
     public void updateAuthority(long userId, long bucketInstId, long authorityUserId, UpdateType type);
+
+    /**
+     * @param userId
+     */
+    public boolean isExistUser(long userId);
 }
