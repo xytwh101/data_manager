@@ -73,6 +73,22 @@ public class UserController {
                 .append("/").append(android).toString());
     }
 
+    /**
+     * 创建user
+     *
+     * @param android
+     * @param request
+     * @param response
+     */
+    @RequestMapping(value = "/android/{android}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getAndroid(@PathVariable long android,
+                             HttpServletRequest request, HttpServletResponse response) {
+        String head = "the message is come from twh！";
+
+        return String.valueOf(android) + " " + head;
+    }
+
     @RequestMapping(value = "/users/{userId}/password/{password}", method = RequestMethod.DELETE)
     public void deleteUser(@PathVariable long userId, @PathVariable String password,
                            HttpServletRequest request, HttpServletResponse response) {

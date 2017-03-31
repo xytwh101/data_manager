@@ -54,9 +54,12 @@ public class UserTest extends TestCase {
 
     @Test
     public void androidTest() {
+        //String uri = "http://120.25.159.42:8081/data_manager/spring/android/{android}";
         String uri = "http://192.168.0.106:8080/data_manager/spring/android/{android}";
         long android = 111111111;
-        restTemplate.postForLocation(uri, null, android);
+        String aaa = restTemplate.getForObject(uri, String.class, android);
+        assertEquals(String.valueOf(android) +
+                " " + "the message is come from twh", aaa);
     }
 
     @Test
