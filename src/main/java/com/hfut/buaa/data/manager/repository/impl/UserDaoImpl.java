@@ -97,17 +97,22 @@ public class UserDaoImpl extends DaoInst implements UserDao {
     @Override
     public Set<BucketInst> getBuckets(long userId) {
         Session session = openSession();
-        Query query = session.createQuery("from BucketInst where userId = :para ");
+        Query query = session.createQuery("from BucketInst a, BucketInstAuthority b " +
+                "where b.userId = :para and a.bucketId = b.instId ");
         query.setParameter("para", userId);
-        List<BucketInst> list = query.list();
+        List<Object[]> list = query.list();
+        Set<BucketInst> set = new HashSet<BucketInst>();
         if (0 != list.size()) {
-            for (BucketInst bucketInst : list) {
+            for (Object[] objects : list) {
+                BucketInst bucketInst = (BucketInst) objects[0];
+                BucketInstAuthority bucketInstAuthority
+                        = (BucketInstAuthority) objects[1];
+                bucketInst.setAuth(bucketInstAuthority.getAuthority());
                 bucketInst.setDataInsts(
                         bucketInstDao.getDataInsts(bucketInst.getBucketId()));
+                set.add(bucketInst);
             }
         }
-        Set<BucketInst> set = new HashSet<BucketInst>();
-        set.addAll(query.list());
         return set;
     }
 

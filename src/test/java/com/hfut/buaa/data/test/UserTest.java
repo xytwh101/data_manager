@@ -73,11 +73,11 @@ public class UserTest extends TestCase {
 
     @Test
     public void getBucketsTest() {
-        long userId = 111;
+        long userId = 555;
         String uri = "http://localhost:8080/data_manager/spring/user/{userId}/buckets";
         String string = restTemplate.getForObject(uri, String.class, userId);
         Set<BucketInst> bucketInsts = restTemplate.getForObject(uri, HashSet.class, userId);
-        assertEquals(2, bucketInsts.size());
+        assertEquals(1, bucketInsts.size());
     }
 
     @Test

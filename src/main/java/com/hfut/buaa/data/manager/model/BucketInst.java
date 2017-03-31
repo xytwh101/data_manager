@@ -12,6 +12,15 @@ import com.alibaba.fastjson.*;
  */
 public class BucketInst extends Instance {
     private Set<DataInst> dataInsts = new HashSet<DataInst>();
+    private int auth = 2;
+
+    public int getAuth() {
+        return auth;
+    }
+
+    public void setAuth(int auth) {
+        this.auth = auth;
+    }
 
     public BucketInst() {
     }
