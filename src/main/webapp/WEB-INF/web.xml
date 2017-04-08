@@ -30,7 +30,15 @@
         <servlet-name>springServlet</servlet-name>
         <url-pattern>/spring/*</url-pattern>
     </servlet-mapping>
-
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>securedapp</web-resource-name>
+            <url-pattern>/sprint/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
     <filter>
         <filter-name>encodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>

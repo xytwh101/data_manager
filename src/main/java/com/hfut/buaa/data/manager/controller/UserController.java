@@ -84,7 +84,7 @@ public class UserController {
     @ResponseBody
     public String getAndroid(@PathVariable long android,
                              HttpServletRequest request, HttpServletResponse response) {
-        String head = "the message is come from twh！";
+        String head = "the message is come from twh";
 
         return String.valueOf(android) + " " + head;
     }

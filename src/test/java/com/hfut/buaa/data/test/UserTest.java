@@ -54,8 +54,8 @@ public class UserTest extends TestCase {
 
     @Test
     public void androidTest() {
-        //String uri = "http://120.25.159.42:8081/data_manager/spring/android/{android}";
-        String uri = "http://192.168.0.106:8080/data_manager/spring/android/{android}";
+        String uri = "https://120.25.159.42:8443/data_manager/spring/android/{android}";
+        // String uri = "http://192.168.0.106:8080/data_manager/spring/android/{android}";
         long android = 111111111;
         String aaa = restTemplate.getForObject(uri, String.class, android);
         assertEquals(String.valueOf(android) +
