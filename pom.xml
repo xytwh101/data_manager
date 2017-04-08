@@ -30,7 +30,7 @@
                     <port>8080</port>
                     <path>/data_manager</path>
                     <finalName>data_manager</finalName>
-                    <url>http://localhost:8080/manager/text</url>
+                    <url>http://localhost:8081/manager/text</url>
                     <uriEncoding>UTF-8</uriEncoding>
                     <username>tomcat</username>
                     <password>tomcat</password>
